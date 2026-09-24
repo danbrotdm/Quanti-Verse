@@ -6,7 +6,7 @@ A browser game bootloader suite that lives in a single, self-contained HTML file
 | --- | --- | --- |
 | **QuantiLoader** | v3.1 | Boots a `.bootable.zip` bundle: unpacks it in the browser, reads its `manifest.json`, and hands off to the game. |
 | **QuantiVerter** | v5.0 | Converts Web, Unity, Flash (`.swf`), DOS (`.jsdos` / `.exe`) and retro ROM sources into bootable bundles. |
-| **QuantiSorter** | v2.0 | A local game library: index, search, sort, tag, edit, and launch bundles, one at a time or in bulk (shift-click selects a range). The library is stored in IndexedDB and can also be linked to a folder on disk. |
+| **QuantiSorter** | v2.0 | A local game library: index, search, sort, tag, edit, and launch bundles, one at a time or in bulk (shift-click selects a range). Backs up and restores the whole library. The library is stored in IndexedDB and can also be linked to a folder on disk. |
 
 Build tag: `NEXUS-4`
 
@@ -33,6 +33,14 @@ A bootable bundle is a `.zip` file. The folder that holds `manifest.json` is the
 
 - **`kind`:** one of `web`, `flash`, `dos`, `webretro`.
 - **Optional metadata**, which QuantiSorter reads: `entry`, `system`, `core`, `author`, `developer`, `genre`, `year`, `tags`, `description`.
+
+## Backups
+
+**Back up library** in QuantiSorter downloads a single `.zip` file. It holds every game bundle (`games/`), every library entry with its tags, cover, notes, favourite and order (`quantiverse-backup.json`), and every guarded save (`saves/`). **Back up** in the bulk bar does the same for just the selected games.
+
+To restore, use **Restore backup**, or drop the backup file on the library. A restore merges into the library: new games are added, and for games already present the newer details win. A game whose file this browser lost gets it back, and saves are imported with the newest copy winning. Nothing already in the library is deleted.
+
+Backups are ordinary zips: entries are stored uncompressed (the bundles are zips already) and switch to ZIP64 past 4 GB. They are written and read without holding the archive in memory, so a multi-gigabyte library works the same way as a small one.
 
 ## Saves
 
@@ -69,5 +77,5 @@ The Ruffle and js-dos blocks (`<script type="application/octet-stream" id="qv-ru
 
 1. ~~**Fully offline Flash and DOS**~~ (done)
 2. ~~**QuantiSorter bulk actions**~~ (done)
-3. **Full library backup and restore:** a single archive that holds the index, the bundles, and the saves.
+3. ~~**Full library backup and restore**~~ (done, see [Backups](#backups))
 4. ~~**Saves:** `Saves/<game>/` and save hardening~~ (done, see [Saves](#saves))

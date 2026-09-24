@@ -574,6 +574,9 @@ body{margin:0;min-height:100vh;font:13px/1.55 var(--mono);color:rgb(var(--rgb));
           <button type="button" id="qs-export">⇩ Export index</button>
           <button type="button" id="qs-clear" class="danger">⌫ Clear library</button>
           <button type="button" id="qs-setdir">⛃ Set library folder</button>
+          <button type="button" id="qs-backup" title="One .zip with every game, its library details and its saves">⇩ Back up library</button>
+          <button type="button" id="qs-restore" title="Merge a Quantiverse backup into this library">⇧ Restore backup</button>
+          <input id="qs-restore-file" type="file" accept=".zip" hidden>
           <input id="qs-file" type="file" accept=".zip" multiple hidden>
           <input id="qs-folder" type="file" webkitdirectory directory multiple hidden>
         </div>
@@ -591,6 +594,7 @@ body{margin:0;min-height:100vh;font:13px/1.55 var(--mono);color:rgb(var(--rgb));
           <button type="button" id="qs-bulk-tagadd" data-needs-selection>＋ Tag</button>
           <button type="button" id="qs-bulk-tagdel" data-needs-selection>－ Tag</button>
           <span class="qs-bulk-sep" aria-hidden="true"></span>
+          <button type="button" id="qs-bulk-backup" data-needs-selection title="Back up just the selected games and their saves">⇩ Back up</button>
           <button type="button" id="qs-bulk-delete" class="danger" data-needs-selection>⌫ Delete</button>
         </div>
       </section>
@@ -3901,13 +3905,20 @@ https://github.com/nodeca/pako/blob/main/LICENSE
       return;
     }
 
+    // A Quantiverse backup dropped or added here is restored rather than indexed as a game.
+    const backups = [];
+    for (const f of zipFiles) if (await isBackupZip(f)) backups.push(f);
+    if (backups.length) await restoreFiles(backups);
+    const gameFiles = zipFiles.filter(f => !backups.includes(f));
+    if (!gameFiles.length) return;
+
     working = true;
     let added = 0;
     let updated = 0;
     const failures = [];
 
     try {
-      for (const file of zipFiles) {
+      for (const file of gameFiles) {
         try {
           const result = await addFile(file);
           if (result.existing) updated++;
@@ -4728,6 +4739,265 @@ https://github.com/nodeca/pako/blob/main/LICENSE
     }
   }
 
+  // ---- Backup / restore ---------------------------------------------------------------
+  // A backup is a plain .zip: quantiverse-backup.json (every library entry: title, tags, cover,
+  // notes, order...), games/<id>.zip (the bundles) and saves/<game>.json (the save guard's
+  // snapshots, same format as Saves/<game>/save.json). Entries are stored, not compressed:
+  // bundles are zips already. Writing and reading never hold the archive in memory, so a
+  // library of many gigabytes backs up and restores like a small one (ZIP64 past 4 GB).
+  const BACKUP_JSON = "quantiverse-backup.json";
+
+  const CRC_TABLE = (() => {
+    const t = new Uint32Array(256);
+    for (let n = 0; n < 256; n++) { let c = n; for (let k = 0; k < 8; k++) c = c & 1 ? 0xEDB88320 ^ (c >>> 1) : c >>> 1; t[n] = c >>> 0; }
+    return t;
+  })();
+  async function crc32(blob) {
+    let c = 0xFFFFFFFF;
+    const reader = blob.stream().getReader();
+    for (;;) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      for (let i = 0; i < value.length; i++) c = CRC_TABLE[(c ^ value[i]) & 0xFF] ^ (c >>> 8);
+    }
+    return (c ^ 0xFFFFFFFF) >>> 0;
+  }
+
+  function le(size, fields) {
+    const b = new Uint8Array(size), v = new DataView(b.buffer);
+    let o = 0;
+    for (const [bytes, val] of fields) {
+      if (bytes === 2) v.setUint16(o, val, true);
+      else if (bytes === 4) v.setUint32(o, val, true);
+      else { v.setUint32(o, val % 0x100000000, true); v.setUint32(o + 4, Math.floor(val / 0x100000000), true); }
+      o += bytes;
+    }
+    return b;
+  }
+  const cat = (...parts) => { const out = new Uint8Array(parts.reduce((n, p) => n + p.length, 0)); let o = 0; for (const p of parts) { out.set(p, o); o += p.length; } return out; };
+
+  // entries: [{ name, blob }]. Returns a Blob made of references to the entry blobs.
+  async function buildStoredZip(entries, onProgress) {
+    const parts = [], central = [];
+    const now = new Date();
+    const dosTime = (now.getHours() << 11) | (now.getMinutes() << 5) | (now.getSeconds() >> 1);
+    const dosDate = ((now.getFullYear() - 1980) << 9) | ((now.getMonth() + 1) << 5) | now.getDate();
+    const MAX32 = 0xFFFFFFFF;
+    let offset = 0;
+    for (let i = 0; i < entries.length; i++) {
+      const { name, blob } = entries[i];
+      if (onProgress) onProgress(i, entries.length, name);
+      const nameBytes = new TextEncoder().encode(name);
+      const size = blob.size, crc = await crc32(blob);
+      const big = size >= MAX32, farOffset = offset >= MAX32;
+      const localExtra = big ? le(20, [[2, 1], [2, 16], [8, size], [8, size]]) : new Uint8Array(0);
+      const local = cat(le(30, [[4, 0x04034b50], [2, big ? 45 : 20], [2, 0x0800], [2, 0], [2, dosTime], [2, dosDate],
+        [4, crc], [4, big ? MAX32 : size], [4, big ? MAX32 : size], [2, nameBytes.length], [2, localExtra.length]]), nameBytes, localExtra);
+      const z64 = [];
+      if (big) z64.push([8, size], [8, size]);
+      if (farOffset) z64.push([8, offset]);
+      const centralExtra = z64.length ? le(4 + z64.length * 8, [[2, 1], [2, z64.length * 8], ...z64]) : new Uint8Array(0);
+      central.push(cat(le(46, [[4, 0x02014b50], [2, 45], [2, big || farOffset ? 45 : 20], [2, 0x0800], [2, 0], [2, dosTime], [2, dosDate],
+        [4, crc], [4, big ? MAX32 : size], [4, big ? MAX32 : size], [2, nameBytes.length], [2, centralExtra.length], [2, 0], [2, 0], [2, 0], [4, 0],
+        [4, farOffset ? MAX32 : offset]]), nameBytes, centralExtra));
+      parts.push(local, blob);
+      offset += local.length + size;
+    }
+    const cdSize = central.reduce((n, c) => n + c.length, 0), cdOffset = offset;
+    parts.push(...central);
+    const needZip64 = entries.length >= 0xFFFF || cdOffset >= MAX32 || cdSize >= MAX32;
+    if (needZip64) {
+      parts.push(le(56, [[4, 0x06064b50], [8, 44], [2, 45], [2, 45], [4, 0], [4, 0], [8, entries.length], [8, entries.length], [8, cdSize], [8, cdOffset]]));
+      parts.push(le(20, [[4, 0x07064b50], [4, 0], [8, cdOffset + cdSize], [4, 1]]));
+    }
+    parts.push(le(22, [[4, 0x06054b50], [2, 0], [2, 0], [2, needZip64 ? 0xFFFF : entries.length], [2, needZip64 ? 0xFFFF : entries.length],
+      [4, needZip64 ? MAX32 : cdSize], [4, needZip64 ? MAX32 : cdOffset], [2, 0]]));
+    return new Blob(parts, { type: "application/zip" });
+  }
+
+  // Lists a zip's entries from its central directory. Stored entries come back as zero-copy
+  // slices of the file; anything else is read through JSZip.
+  async function openZipIndex(file) {
+    const u8 = async (start, end) => new Uint8Array(await file.slice(start, end).arrayBuffer());
+    const tailStart = Math.max(0, file.size - 65557);
+    const tail = await u8(tailStart, file.size), tv = new DataView(tail.buffer);
+    let eocd = -1;
+    for (let i = tail.length - 22; i >= 0; i--) if (tv.getUint32(i, true) === 0x06054b50) { eocd = i; break; }
+    if (eocd < 0) throw new Error("Not a zip file.");
+    let count = tv.getUint16(eocd + 10, true), cdSize = tv.getUint32(eocd + 12, true), cdOffset = tv.getUint32(eocd + 16, true);
+    const u64 = (v, o) => v.getUint32(o, true) + v.getUint32(o + 4, true) * 0x100000000;
+    if (count === 0xFFFF || cdSize === 0xFFFFFFFF || cdOffset === 0xFFFFFFFF) {
+      const loc = eocd - 20;
+      if (loc >= 0 && tv.getUint32(loc, true) === 0x07064b50) {
+        const rec = await u8(u64(tv, loc + 8), u64(tv, loc + 8) + 56), rv = new DataView(rec.buffer);
+        if (rv.getUint32(0, true) === 0x06064b50) { count = u64(rv, 32); cdSize = u64(rv, 40); cdOffset = u64(rv, 48); }
+      }
+    }
+    const cd = await u8(cdOffset, cdOffset + cdSize), cv = new DataView(cd.buffer);
+    const entries = new Map();
+    let jszip = null;
+    for (let o = 0, n = 0; n < count && o + 46 <= cd.length; n++) {
+      if (cv.getUint32(o, true) !== 0x02014b50) break;
+      const method = cv.getUint16(o + 10, true);
+      let csize = cv.getUint32(o + 20, true), usize = cv.getUint32(o + 24, true), lho = cv.getUint32(o + 42, true);
+      const nl = cv.getUint16(o + 28, true), xl = cv.getUint16(o + 30, true), cl = cv.getUint16(o + 32, true);
+      const name = new TextDecoder().decode(cd.subarray(o + 46, o + 46 + nl));
+      for (let x = o + 46 + nl; x + 4 <= o + 46 + nl + xl;) {
+        const id = cv.getUint16(x, true), len = cv.getUint16(x + 2, true);
+        if (id === 1) {
+          let y = x + 4;
+          if (usize === 0xFFFFFFFF) { usize = u64(cv, y); y += 8; }
+          if (csize === 0xFFFFFFFF) { csize = u64(cv, y); y += 8; }
+          if (lho === 0xFFFFFFFF) { lho = u64(cv, y); }
+        }
+        x += 4 + len;
+      }
+      entries.set(name, { name, method, csize, usize, lho });
+      o += 46 + nl + xl + cl;
+    }
+    const blobOf = async (name) => {
+      const e = entries.get(name);
+      if (!e) return null;
+      if (e.method === 0) {
+        const lh = await u8(e.lho, e.lho + 30), lv = new DataView(lh.buffer);
+        const start = e.lho + 30 + lv.getUint16(26, true) + lv.getUint16(28, true);
+        return file.slice(start, start + e.csize);
+      }
+      if (!jszip) jszip = await JSZip.loadAsync(file);
+      const zf = jszip.file(name);
+      return zf ? zf.async("blob") : null;
+    };
+    return { has: (name) => entries.has(name), names: () => [...entries.keys()], blob: blobOf, text: async (name) => { const b = await blobOf(name); return b ? b.text() : null; } };
+  }
+
+  async function isBackupZip(file) {
+    try { return (await openZipIndex(file)).has(BACKUP_JSON); } catch (_) { return false; }
+  }
+
+  function downloadBlob(blob, name) {
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = name;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 120000);
+  }
+
+  async function backupGames(recs, scope) {
+    if (working) return;
+    const qs = window.__quantiSaves;
+    working = true;
+    updateBulkBar();
+    try {
+      const entries = [], metas = [], saves = [];
+      for (const g of recs) {
+        const copy = { ...g };
+        delete copy.blob;
+        copy.bundlePath = g.blob && !g.storageMissing ? `games/${g.id}.zip` : null;
+        if (copy.bundlePath) entries.push({ name: copy.bundlePath, blob: g.blob });
+        metas.push(copy);
+      }
+      if (qs) {
+        const all = await qs.list();
+        const wanted = scope === "library" ? all : all.filter(s => recs.some(g => saveKeyFor(g) === s.key));
+        for (const s of wanted) {
+          const text = await qs.exportSerialized(s.key);
+          if (!text) continue;
+          const name = `saves/${s.folder}.json`;
+          entries.push({ name, blob: new Blob([text], { type: "application/json" }) });
+          saves.push({ key: s.key, folder: s.folder, title: s.title, updatedAt: s.updatedAt, path: name });
+        }
+      }
+      const manifest = { $type: "quantiverse-backup", format: 1, scope, createdAt: new Date().toISOString(), games: metas, saves };
+      entries.unshift(
+        { name: BACKUP_JSON, blob: new Blob([JSON.stringify(manifest, null, 1)], { type: "application/json" }) },
+        { name: "README.txt", blob: new Blob([
+          "Quantiverse library backup (" + manifest.createdAt + ")\r\n\r\n" +
+          "Restore it in QuantiSorter with RESTORE BACKUP, or drop it on the library.\r\n" +
+          "games/ holds the game bundles (each one also loads directly in QuantiLoader),\r\n" +
+          "saves/ holds each game's save data, and " + BACKUP_JSON + " the library details.\r\n"], { type: "text/plain" }) });
+      const missing = metas.filter(m => !m.bundlePath).length;
+      const blob = await buildStoredZip(entries, (i, n) => { taglineEl.textContent = `BACKING UP ${i + 1}/${n}…`; });
+      const stamp = new Date().toISOString().slice(0, 10);
+      downloadBlob(blob, `Quantiverse-backup-${stamp}${scope === "library" ? "" : "-" + recs.length + "-games"}.zip`);
+      taglineEl.textContent = `BACKUP READY: ${recs.length} GAME${recs.length === 1 ? "" : "S"}, ${saves.length} SAVE${saves.length === 1 ? "" : "S"}, ${fmtSize(blob.size)}` +
+        (missing ? ` (${missing} WITHOUT A GAME FILE IN THIS BROWSER)` : "");
+    } catch (e) {
+      console.error(e);
+      taglineEl.textContent = "BACKUP FAILED — " + (e && e.message ? e.message : String(e));
+    } finally {
+      working = false;
+      render();
+    }
+  }
+
+  // Merges a backup into the library: new games are added, existing ones (same id or same
+  // source file) keep whichever details are newer and get their game file back if this browser
+  // lost it, and saves are imported newest-wins. Nothing already here is thrown away.
+  async function restoreBackup(file) {
+    const zip = await openZipIndex(file);
+    let manifest;
+    try { manifest = JSON.parse(await zip.text(BACKUP_JSON)); } catch (_) { manifest = null; }
+    if (!manifest || manifest.$type !== "quantiverse-backup" || !Array.isArray(manifest.games)) throw new Error(file.name + " is not a Quantiverse backup.");
+    let added = 0, updated = 0, savesIn = 0;
+    const qs = window.__quantiSaves;
+    let order = games.reduce((m, g) => Math.max(m, Number(g.customOrder) || 0), -1);
+    for (let i = 0; i < manifest.games.length; i++) {
+      const g = manifest.games[i];
+      taglineEl.textContent = `RESTORING ${i + 1}/${manifest.games.length}…`;
+      const bundle = g.bundlePath ? await zip.blob(g.bundlePath) : null;
+      const asFile = bundle ? new File([bundle], g.fileName || (g.id + ".zip"), { type: "application/zip", lastModified: g.lastModified || Date.now() }) : null;
+      const meta = { ...g };
+      delete meta.bundlePath;
+      delete meta.blob;
+      let rec = games.find(x => x.id === g.id) || (g.sourceKey ? games.find(x => x.sourceKey === g.sourceKey) : null);
+      if (rec) {
+        const keepId = rec.id, keepOrder = rec.customOrder;
+        if ((Number(g.updatedAt) || 0) > (Number(rec.updatedAt) || 0)) Object.assign(rec, meta, { id: keepId, customOrder: keepOrder });
+        const lost = rec.storageMissing || !rec.blob;
+        if (lost && asFile) { rec.blob = asFile; rec.storageMissing = false; }
+        await putGame(rec);
+        if (lost && asFile) await writeGameBundle(rec).catch(() => {});
+        else writeGameMeta(rec).catch(() => {});
+        updated++;
+      } else {
+        rec = { ...meta, customOrder: ++order, blob: asFile, storageMissing: !asFile };
+        if (!rec.id) rec.id = uid();
+        await putGame(rec);
+        await writeGameBundle(rec).catch(() => {});
+        games.push(rec);
+        added++;
+      }
+    }
+    if (qs) {
+      for (const s of manifest.saves || []) {
+        try { if (await qs.importSerialized(await zip.text(s.path))) savesIn++; }
+        catch (e) { console.warn("Skipped save " + s.path + " from the backup:", e); }
+      }
+      if (savesIn && libraryDir) await syncSavesWithDisk().catch(() => {});
+    }
+    await normalizeOrder(true);
+    await refresh();
+    taglineEl.textContent = `RESTORED ${file.name}: ${added} ADDED, ${updated} ALREADY HERE, ${savesIn} SAVE${savesIn === 1 ? "" : "S"} IMPORTED`;
+  }
+
+  async function restoreFiles(files) {
+    if (working) return;
+    working = true;
+    updateBulkBar();
+    try {
+      for (const f of files) await restoreBackup(f);
+    } catch (e) {
+      console.error(e);
+      taglineEl.textContent = "RESTORE FAILED — " + (e && e.message ? e.message : String(e));
+    } finally {
+      working = false;
+      render();
+    }
+  }
+
   // Controls.
   $("qs-add").onclick = () => {
     if (!working) {
@@ -4753,6 +5023,13 @@ https://github.com/nodeca/pako/blob/main/LICENSE
   $("qs-export").onclick = () => exportIndex();
   $("qs-clear").onclick = () => clearLibrary();
   $("qs-setdir").onclick = () => chooseLibraryFolder();
+  $("qs-backup").onclick = () => {
+    if (!games.length) { taglineEl.textContent = "NOTHING TO BACK UP YET"; return; }
+    backupGames([...games], "library");
+  };
+  $("qs-restore").onclick = () => { if (!working) { $("qs-restore-file").value = ""; $("qs-restore-file").click(); } };
+  $("qs-restore-file").onchange = () => restoreFiles([...$("qs-restore-file").files]);
+  $("qs-bulk-backup").onclick = () => backupGames(selectedGames(), "selection");
 
   $("qs-bulk-all").onclick = () => {
     filteredGames().forEach(g => selected.add(g.id));
