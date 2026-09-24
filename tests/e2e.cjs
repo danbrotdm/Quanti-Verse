@@ -7,7 +7,7 @@ const APP = process.env.APP || APP_FILE;
   const browser = await chromium.launch();
   const ctx = await browser.newContext({ viewport: { width: 800, height: 600 }, locale: 'en-US', acceptDownloads: true });
   const leaked = [];
-  await ctx.route('**/*', r => { const u = r.request().url(); if (/^(file|blob|data):/.test(u) || u.startsWith('http://127.0.0.1:8766/')) return r.continue(); leaked.push(u); return r.abort(); });
+  await ctx.route('**/*', r => { const u = r.request().url(); if (/^(file|blob|data):/.test(u) || /^http:\/\/127\.0\.0\.1:876[0-9]\//.test(u)) return r.continue(); leaked.push(u); return r.abort(); });
   const errs = [];
   const watch = (p, tag) => { p.on('pageerror', e => errs.push(tag + ' pageerror: ' + e.message)); p.on('console', m => { if (m.type() === 'error') errs.push(tag + ' console: ' + m.text().slice(0, 300)); }); };
 

@@ -5,6 +5,7 @@ Browser tests that drive the real `index.html` in headless Chromium through Play
 ```
 tests/run_all.sh            # everything except the 4.5 GB ZIP64 test
 ZIP64=1 tests/run_all.sh    # include it
+BIG=1 tests/run_all.sh      # also time a 1.5 GB bundle launch
 ```
 
 `make_fixtures.py` builds the test games from scratch under `tests/.work/fixtures`, so no third-party game files are needed:
@@ -21,4 +22,7 @@ ZIP64=1 tests/run_all.sh    # include it
 | `bulk.cjs` | QuantiSorter selection, range select, bulk tags, favourites, delete, persistence |
 | `backup.cjs` | Backup → restore in a fresh profile reproduces the library and saves; restoring again merges |
 | `zip64.cjs` | A backup with a 4.5 GB entry is readable by our reader and by Python's `zipfile` |
+| `threads.cjs` | A multithreaded (pthreads) game is flagged by QuantiVerter, runs after QuantiLoader switches on cross-origin isolation over http, and gets a clear explanation on `file://` |
+| `bigload.cjs` | Seconds to running and memory for a big bundle (streamed, not loaded into RAM) |
+| `engines/` | Emscripten probe games (classic, threaded, modularized) built from `probe.c` by `build_probes.sh` |
 | `check_syntax.py` | Every inline script in `index.html` parses |

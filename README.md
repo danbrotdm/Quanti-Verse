@@ -15,7 +15,9 @@ Build tag: `NEXUS-4`
 Flash and DOS games are fully offline too: Ruffle and js-dos are built into the page, and QuantiVerter packs the emulator into each Flash or DOS bundle it makes.
 
 - **Locally:** open `index.html` in a Chromium-based browser or in Firefox. Folder features (Scan Folder, Set Library Folder) use the File System Access API, so they need Chromium.
-- **Hosted:** the file is named `index.html` so GitHub Pages can serve it without any setup. To publish it, go to *Settings → Pages* and deploy from the default branch root.
+- **Hosted:** the file is named `index.html` so GitHub Pages can serve it without any setup. To publish it, go to *Settings → Pages* and deploy from the default branch root. Keep `qv-coi-sw.js` next to `index.html`.
+- **Multithreaded games** (Emscripten pthreads, Godot 4, threaded LÖVE or .NET builds) need `SharedArrayBuffer`, and browsers only allow that on a cross-origin isolated page. A page opened from disk can never be isolated, so these games only run when Quantiverse is served over http(s): GitHub Pages, or `python3 -m http.server` in this folder. There, QuantiLoader turns isolation on through `qv-coi-sw.js` by itself (it reloads once and resumes the game). QuantiVerter marks such games in their manifest (`"requires": ["crossOriginIsolated"]`).
+- **Big games:** QuantiLoader reads bundles lazily, loading only the zip's index at start and each file when the game asks for it. A multi-gigabyte game starts at once and is never copied into memory as a whole.
 
 ## Bundle format
 
@@ -58,6 +60,7 @@ These fixes apply to bundles made by this version of QuantiVerter. Flash, DOS an
 
 ```
 index.html                 the whole app (HTML + CSS + JS + embedded runtimes)
+qv-coi-sw.js               service worker that enables cross-origin isolation for multithreaded games
 tools/build_runtimes.py    re-embeds the Ruffle and js-dos runtimes into index.html
 tests/                     browser test suite (tests/run_all.sh), see tests/README.md
 README.md

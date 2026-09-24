@@ -1,7 +1,7 @@
 const { chromium, APP_FILE, FIXTURES, OUT: OUTDIR, WORK } = require('./lib.cjs');
 const fs = require('fs'), cp = require('child_process');
 const html = fs.readFileSync(require('./lib.cjs').ROOT + '/index.html', 'utf8');
-const code = html.slice(html.indexOf('  const CRC_TABLE = '), html.indexOf('  async function isBackupZip('));
+const code = html.slice(html.indexOf('  const CRC_TABLE = '), html.indexOf('  async function isBackupZip('));  // openZipIndex needs window.QVZip, which the page has
 const ok = (c, m) => { console.log((c ? 'PASS ' : 'FAIL ') + m); if (!c) process.exitCode = 1; };
 (async () => {
   const b = await chromium.launch(); const ctx = await b.newContext({ acceptDownloads: true }); const p = await ctx.newPage();
