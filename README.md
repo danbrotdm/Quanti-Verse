@@ -6,7 +6,7 @@ A browser game bootloader suite that lives in a single, self-contained HTML file
 | --- | --- | --- |
 | **QuantiLoader** | v3.1 | Boots a `.bootable.zip` bundle: unpacks it in the browser, reads its `manifest.json`, and hands off to the game. |
 | **QuantiVerter** | v5.0 | Converts Web, Unity, Flash (`.swf`), DOS (`.jsdos` / `.exe`) and retro ROM sources into bootable bundles. |
-| **QuantiSorter** | v2.0 | A local game library: index, search, sort, tag, edit, and launch bundles. The library is stored in IndexedDB and can also be linked to a folder on disk. |
+| **QuantiSorter** | v2.0 | A local game library: index, search, sort, tag, edit, and launch bundles, one at a time or in bulk (shift-click selects a range). The library is stored in IndexedDB and can also be linked to a folder on disk. |
 
 Build tag: `NEXUS-4`
 
@@ -56,6 +56,6 @@ The Ruffle and js-dos blocks (`<script type="application/octet-stream" id="qv-ru
 ## Roadmap
 
 1. ~~**Fully offline Flash and DOS**~~ (done)
-2. **QuantiSorter bulk actions:** multi-select, then tag, delete, or export in one step.
+2. ~~**QuantiSorter bulk actions**~~ (done)
 3. **Full library backup and restore:** a single archive that holds the index, the bundles, and the saves.
 4. **Saves:** a per-game `Saves/<game>/` folder structure and hardening of save I/O, so that interrupted or stuck saves can't hang a game (the "hanging save icon" class of bug).

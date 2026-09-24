@@ -284,6 +284,19 @@ body{margin:0;min-height:100vh;font:13px/1.55 var(--mono);color:rgb(var(--rgb));
 #nexus-sorter-wrap .qs-tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:9px}
 #nexus-sorter-wrap .qs-tag-filter{padding:.35em .55em;border:1px solid rgba(var(--rgb),.22);background:rgba(var(--rgb),.03);cursor:pointer;font-size:9px}
 #nexus-sorter-wrap .qs-tag-filter.active{background:rgba(var(--rgb),.16);border-color:rgb(var(--rgb))}
+#nexus-sorter-wrap .qs-bulk{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-top:10px;padding:8px;border:1px dashed rgba(var(--rgb),.22);background:rgba(var(--rgb),.03)}
+#nexus-sorter-wrap .qs-bulk[hidden]{display:none}
+#nexus-sorter-wrap .qs-bulk.armed{border-style:solid;border-color:rgba(var(--rgb),.5);background:rgba(var(--rgb),.06)}
+#nexus-sorter-wrap .qs-bulk button{padding:.45em .8em;font-size:9px}
+#nexus-sorter-wrap .qs-bulk input{width:auto;flex:1 1 140px;min-width:120px;padding:.45em .6em;font-size:10px}
+#nexus-sorter-wrap .qs-bulk-count{min-width:96px;margin-right:4px;font-size:9px;letter-spacing:.14em}
+#nexus-sorter-wrap .qs-bulk-sep{width:1px;align-self:stretch;margin:0 3px;background:rgba(var(--rgb),.22)}
+#nexus-sorter-wrap .qs-bulk button:disabled{opacity:.35;cursor:default;box-shadow:none}
+#nexus-sorter-wrap .qs-bulk button:disabled:hover{background:transparent;color:rgb(var(--rgb));border-color:rgba(var(--rgb),.4)}
+#nexus-sorter-wrap .qs-bulk button.danger:disabled:hover{color:#ff8a8a;border-color:rgba(255,90,90,.42)}
+#nexus-sorter-wrap .qs-card.selected{border-color:rgb(var(--rgb));box-shadow:0 0 16px rgba(var(--rgb),.2),inset 0 0 0 1px rgba(var(--rgb),.45)}
+#nexus-sorter-wrap .qs-actions .qs-sel{flex:0 0 auto;padding:.3em .55em;font-size:11px;letter-spacing:0}
+#nexus-sorter-wrap .qs-actions .qs-sel[aria-pressed="true"]{background:rgba(var(--rgb),.22)}
 #nexus-sorter-wrap .qs-library-wrap{position:relative;padding:14px}
 #nexus-sorter-wrap .qs-dropzone{border:1px dashed rgba(var(--rgb),.25);padding:8px 10px;margin-bottom:10px;text-align:center;background:rgba(var(--rgb),.025);transition:.15s}
 #nexus-sorter-wrap .qs-dropzone.drag{border-color:rgb(var(--rgb));background:rgba(var(--rgb),.08);box-shadow:0 0 22px rgba(var(--rgb),.12)}
@@ -349,6 +362,7 @@ body{margin:0;min-height:100vh;font:13px/1.55 var(--mono);color:rgb(var(--rgb));
   #nexus-sorter-wrap .qs-library,#nexus-sorter-wrap .qs-library.qs-compact{grid-template-columns:repeat(2,minmax(0,1fr))}
   #nexus-sorter-wrap .qs-list .qs-card{grid-template-columns:100px minmax(0,1fr)}
   #nexus-sorter-wrap .qs-list .qs-actions{grid-column:1/-1;max-width:none;padding:0 9px 9px}
+  #nexus-sorter-wrap .qs-bulk-sep{display:none}
 }
 @media(max-width:460px){
   #nexus-sorter-wrap .qs-tools{grid-template-columns:1fr}
@@ -566,6 +580,19 @@ body{margin:0;min-height:100vh;font:13px/1.55 var(--mono);color:rgb(var(--rgb));
         <div class="qs-statline"><span id="qs-summary">0 GAMES / 0 SHOWN</span><span id="qs-tagline">DROP .ZIP BUNDLES HERE TO INDEX THEM</span></div>
         <div class="qs-statline"><span id="qs-dirstatus">LIBRARY FOLDER: NOT CONNECTED</span></div>
         <div class="qs-tags" id="qs-tags"></div>
+        <div class="qs-bulk" id="qs-bulk" hidden>
+          <span class="qs-bulk-count" id="qs-bulk-count">0 SELECTED</span>
+          <button type="button" id="qs-bulk-all" title="Select every game the current search and filters show">Select shown</button>
+          <button type="button" id="qs-bulk-none">Clear</button>
+          <span class="qs-bulk-sep" aria-hidden="true"></span>
+          <button type="button" id="qs-bulk-fav" data-needs-selection>★ Favorite</button>
+          <button type="button" id="qs-bulk-unfav" data-needs-selection>☆ Unfavorite</button>
+          <input id="qs-bulk-tag" type="text" maxlength="240" placeholder="tag, tag…" autocomplete="off" spellcheck="false" aria-label="Tags to add or remove">
+          <button type="button" id="qs-bulk-tagadd" data-needs-selection>＋ Tag</button>
+          <button type="button" id="qs-bulk-tagdel" data-needs-selection>－ Tag</button>
+          <span class="qs-bulk-sep" aria-hidden="true"></span>
+          <button type="button" id="qs-bulk-delete" class="danger" data-needs-selection>⌫ Delete</button>
+        </div>
       </section>
 
       <section class="qs-library-wrap">
@@ -3233,6 +3260,9 @@ https://github.com/nodeca/pako/blob/main/LICENSE
   let activeTag = "";
   let working = false;
   let dragId = null;
+  // Bulk selection: ids of the selected games, plus the last one clicked (for shift-click ranges).
+  const selected = new Set();
+  let lastSelectedId = null;
   let readyResolve;
   let readyReject;
   const ready = new Promise((resolve, reject) => {
@@ -4025,7 +4055,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
       : "";
 
     return `
-      <article class="qs-card" data-id="${esc(rec.id)}" ${sortEl.value === "custom" ? 'draggable="true"' : ""}>
+      <article class="qs-card${selected.has(rec.id) ? " selected" : ""}" data-id="${esc(rec.id)}" ${sortEl.value === "custom" ? 'draggable="true"' : ""}>
         ${coverMarkup(rec)}
         <div class="qs-cardbody">
           ${inlineBadges}
@@ -4038,6 +4068,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
           ${status}
           <div class="qs-meta"><span>${esc(fmtSize(rec.fileSize))}</span><span>${esc(String(rec.launchCount || 0))} LOADS</span></div>
           <div class="qs-actions">
+            <button type="button" class="qs-sel" data-action="select" data-id="${esc(rec.id)}" aria-pressed="${selected.has(rec.id)}" title="Select (shift-click selects a range)" aria-label="Select ${esc(rec.title)}">${selected.has(rec.id) ? "■" : "□"}</button>
             ${mainAction}
             <button type="button" data-action="edit" data-id="${esc(rec.id)}">✎ EDIT</button>
             <button type="button" class="danger" data-action="delete" data-id="${esc(rec.id)}">⌫</button>
@@ -4092,9 +4123,10 @@ https://github.com/nodeca/pako/blob/main/LICENSE
     });
   }
 
-  function handleAction(action, id) {
+  function handleAction(action, id, event) {
     if (!id) return;
     switch (action) {
+      case "select": toggleSelected(id, Boolean(event && event.shiftKey)); break;
       case "launch": launchGame(id); break;
       case "edit": openEditor(id); break;
       case "delete": removeGame(id); break;
@@ -4161,9 +4193,10 @@ https://github.com/nodeca/pako/blob/main/LICENSE
     }
 
     renderTags();
+    updateBulkBar();
 
     libraryEl.querySelectorAll("[data-action]").forEach(btn => {
-      btn.addEventListener("click", () => handleAction(btn.dataset.action, btn.dataset.id));
+      btn.addEventListener("click", (e) => handleAction(btn.dataset.action, btn.dataset.id, e));
     });
 
     libraryEl.querySelectorAll(".qs-card").forEach(card => {
@@ -4179,7 +4212,123 @@ https://github.com/nodeca/pako/blob/main/LICENSE
   async function refresh() {
     games = await getAllGames();
     await normalizeOrder(true);
+    pruneSelection();
     render();
+  }
+
+  // ---- Bulk actions -------------------------------------------------------
+  function pruneSelection() {
+    const ids = new Set(games.map(g => g.id));
+    for (const id of [...selected]) if (!ids.has(id)) selected.delete(id);
+    if (lastSelectedId && !ids.has(lastSelectedId)) lastSelectedId = null;
+  }
+
+  function selectedGames() {
+    return games.filter(g => selected.has(g.id));
+  }
+
+  function updateBulkBar() {
+    const bar = $("qs-bulk");
+    bar.hidden = games.length === 0;
+    const n = selected.size;
+    const shown = new Set(filteredGames().map(g => g.id));
+    const hidden = [...selected].filter(id => !shown.has(id)).length;
+    $("qs-bulk-count").textContent = `${n} SELECTED` + (hidden ? ` (${hidden} HIDDEN)` : "");
+    bar.classList.toggle("armed", n > 0);
+    bar.querySelectorAll("[data-needs-selection]").forEach(b => { b.disabled = n === 0 || working; });
+    $("qs-bulk-none").disabled = n === 0;
+  }
+
+  // Shift-click selects everything between the last clicked card and this one, in the order
+  // the library is currently shown, and gives the whole range this card's new state.
+  function toggleSelected(id, range) {
+    const on = !selected.has(id);
+    const shown = filteredGames().map(g => g.id);
+    const a = shown.indexOf(lastSelectedId), b = shown.indexOf(id);
+    const ids = range && a >= 0 && b >= 0 ? shown.slice(Math.min(a, b), Math.max(a, b) + 1) : [id];
+    for (const x of ids) on ? selected.add(x) : selected.delete(x);
+    lastSelectedId = id;
+    render();
+  }
+
+  async function putGames(recs) {
+    await ready;
+    if (!db) throw new Error("Library storage is not ready.");
+    const t = db.transaction(STORE, "readwrite");
+    const store = t.objectStore(STORE);
+    for (const r of recs) store.put(r);
+    await transactionDone(t);
+    for (const r of recs) writeGameMeta(r).catch(() => {});
+  }
+
+  async function runBulk(label, fn) {
+    const recs = selectedGames();
+    if (!recs.length || working) return;
+    working = true;
+    updateBulkBar();
+    try {
+      taglineEl.textContent = await fn(recs);
+    } catch (e) {
+      console.error(e);
+      taglineEl.textContent = label + " FAILED — " + (e && e.message ? e.message : String(e));
+      await refresh().catch(() => {});
+    } finally {
+      working = false;
+      render();
+    }
+  }
+
+  function bulkFavorite(on) {
+    return runBulk("FAVORITE", async recs => {
+      const now = Date.now();
+      for (const r of recs) { r.favorite = on; r.updatedAt = now; }
+      await putGames(recs);
+      return `${recs.length} ${on ? "ADDED TO" : "REMOVED FROM"} FAVORITES`;
+    });
+  }
+
+  function bulkTags(add) {
+    const tags = parseTags($("qs-bulk-tag").value);
+    if (!tags.length) {
+      taglineEl.textContent = "TYPE ONE OR MORE TAGS FIRST (COMMA-SEPARATED)";
+      $("qs-bulk-tag").focus();
+      return;
+    }
+    return runBulk("TAG", async recs => {
+      const now = Date.now();
+      let changed = 0;
+      for (const r of recs) {
+        const before = (r.tags || []).join(",");
+        r.tags = add
+          ? parseTags([...(r.tags || []), ...tags].join(","))
+          : (r.tags || []).filter(t => !tags.includes(t));
+        if (r.tags.join(",") !== before) { r.updatedAt = now; changed++; }
+      }
+      if (!add && tags.includes(activeTag)) activeTag = "";
+      await putGames(recs);
+      $("qs-bulk-tag").value = "";
+      const list = tags.map(t => "#" + t.toUpperCase()).join(" ");
+      return `${list} ${add ? "ADDED TO" : "REMOVED FROM"} ${changed} GAME${changed === 1 ? "" : "S"}`;
+    });
+  }
+
+  function bulkDelete() {
+    const n = selected.size;
+    if (!n || !window.confirm(`Remove ${n} game${n === 1 ? "" : "s"} from QuantiSorter?`)) return;
+    return runBulk("DELETE", async recs => {
+      for (const r of recs) await removeGameFromDisk(r).catch(() => {});
+      await ready;
+      const t = db.transaction(STORE, "readwrite");
+      const store = t.objectStore(STORE);
+      for (const r of recs) store.delete(r.id);
+      await transactionDone(t);
+      const gone = new Set(recs.map(r => r.id));
+      games = games.filter(g => !gone.has(g.id));
+      if (editingId && gone.has(editingId)) cancelEditor();
+      selected.clear();
+      await normalizeOrder(true);
+      return `${recs.length} ENTR${recs.length === 1 ? "Y" : "IES"} REMOVED`;
+    });
   }
 
   async function launchGame(id) {
@@ -4384,6 +4533,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
     await removeGameFromDisk(rec).catch(() => {});
     await deleteGame(id);
     games = games.filter(g => g.id !== id);
+    selected.delete(id);
     if (editingId === id) cancelEditor();
 
     await normalizeOrder(true);
@@ -4397,6 +4547,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
 
     await clearGames();
     games = [];
+    selected.clear();
     activeTag = "";
     cancelEditor();
     render();
@@ -4518,6 +4669,18 @@ https://github.com/nodeca/pako/blob/main/LICENSE
   $("qs-export").onclick = () => exportIndex();
   $("qs-clear").onclick = () => clearLibrary();
   $("qs-setdir").onclick = () => chooseLibraryFolder();
+
+  $("qs-bulk-all").onclick = () => {
+    filteredGames().forEach(g => selected.add(g.id));
+    render();
+  };
+  $("qs-bulk-none").onclick = () => { selected.clear(); render(); };
+  $("qs-bulk-fav").onclick = () => bulkFavorite(true);
+  $("qs-bulk-unfav").onclick = () => bulkFavorite(false);
+  $("qs-bulk-tagadd").onclick = () => bulkTags(true);
+  $("qs-bulk-tagdel").onclick = () => bulkTags(false);
+  $("qs-bulk-tag").addEventListener("keydown", e => { if (e.key === "Enter") { e.preventDefault(); bulkTags(true); } });
+  $("qs-bulk-delete").onclick = () => bulkDelete();
 
   $("qs-save").onclick = () => saveEditor();
   $("qs-cancel").onclick = () => cancelEditor();
