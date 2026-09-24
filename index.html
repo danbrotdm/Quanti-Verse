@@ -972,6 +972,17 @@ https://github.com/nodeca/pako/blob/main/LICENSE
 
       on(window, "error", function (e) { row("RUNTIME", String(e.message || "script error"), "WARN", "warn"); });
 
+      // Put back any save data the browser lost, then guard this game's storage.
+      if (window.__quantiSaves) {
+        try {
+          var sv = await window.__quantiSaves.begin({ title: manifest.title, fileName: file.name, kind: manifest.kind });
+          row("SAVES", "Saves/" + sv.folder + "/", sv.restored ? "RESTORED " + sv.restored : sv.known ? "GUARDED" : "NEW");
+        } catch (e) {
+          console.warn(e);
+          row("SAVES", "not guarded (" + (e && e.message ? e.message : e) + ")", "WARN", "warn");
+        }
+      }
+
       step(2);
       for (var i = 0; i < pre.length; i++) {
         row("PRELOAD", pre[i]);
@@ -2385,7 +2396,10 @@ https://github.com/nodeca/pako/blob/main/LICENSE
       };
       try {
         document.title = CFG.title;
-        const vfs = bundleVfs("https://bundle.invalid");
+        // Ruffle keys a game's saves (SharedObjects) by the movie's host and path. Serving each
+        // game from its own virtual folder keeps two games that both ship a "game.swf" from
+        // overwriting each other's saves.
+        const vfs = bundleVfs("https://bundle.invalid" + (CFG.ns ? "/" + encodeURIComponent(CFG.ns) : ""));
         if (!vfs.has(CFG.runtime + "ruffle.js")) throw new Error("The Ruffle runtime is missing from this bundle (" + CFG.runtime + "ruffle.js). Convert the game again.");
 
         // publicPath points Ruffle's core chunk and WASM requests at the bundle.
@@ -2446,6 +2460,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
         const zf = ROOT.file("game.jsdos");
         if (!zf) throw new Error("game.jsdos is missing from this bundle.");
         const url = URL.createObjectURL(new Blob([await zf.async("uint8array")], { type: "application/zip" }));
+        const saves = window.__quantiSaves && window.__quantiSaves.active ? window.__quantiSaves : null;
 
         host.textContent = "";
         const props = window.Dos(host, {
@@ -2454,9 +2469,14 @@ https://github.com/nodeca/pako/blob/main/LICENSE
           // Only the classic DOSBox core is packed; keep js-dos from switching to DOSBox-X.
           backend: "dosbox",
           backendLocked: true,
-          // The bundle URL is a fresh blob: URL every run, so give js-dos a stable key
-          // for its saved-progress storage instead of deriving one from the URL.
-          fsChanges: { local: true, urlToKey: async () => CFG.key }
+          // Saved progress (the disk changes js-dos records) goes to QuantiLoader's save guard,
+          // which backs it up to Saves/<game>/. js-dos's own store (OPFS) is unavailable when the
+          // page is opened from disk, where saving would otherwise fail silently. Outside
+          // QuantiLoader, fall back to js-dos's store under a stable key (the bundle URL is a
+          // fresh blob: URL every run).
+          fsChanges: saves
+            ? { pull: async () => saves.readFile("dos-changes"), push: async (_url, data) => saves.writeFile("dos-changes", data) }
+            : { local: true, urlToKey: async () => CFG.key }
         });
         window.__dosProps = props;
         try { props.setNoCloud(true); } catch (_) {}
@@ -2505,6 +2525,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
       // even the core's own *relative* asset/wasm lookups resolve through
       // LOCAL_ORIGIN where the shim can catch them too.
       const shimScript = `(function(){
+  try{if(window.parent.__quantiSaves)window.parent.__quantiSaves.attach(window);}catch(_){}
   var LOCAL_ORIGIN=${JSON.stringify(CFG.localOrigin)};
   var PREFIX=${JSON.stringify(CFG.webretroPrefix)};
   var ROOT=window.parent.__bundleRoot;
@@ -2817,6 +2838,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
       title: bundleName,
       swf: swfRel,
       runtime: RUFFLE_PREFIX,
+      ns: bundleName.replace(/[^A-Za-z0-9._-]+/g, "_") || "game",
       config: {
         polyfills: false,
         autoplay: "auto",
@@ -3523,6 +3545,10 @@ https://github.com/nodeca/pako/blob/main/LICENSE
       taglineEl.textContent = remembered
         ? "LIBRARY FOLDER CONNECTED: " + dir.name
         : "LIBRARY FOLDER CONNECTED: " + dir.name + " (won't be remembered next visit)";
+      const synced = await syncSavesWithDisk().catch(e => { console.warn("Save sync failed:", e); return null; });
+      if (synced && (synced.imported || synced.written)) {
+        taglineEl.textContent += ` / SAVES: ${synced.imported} IMPORTED, ${synced.written} WRITTEN`;
+      }
 
       // Best-effort: mirror everything already indexed into the folder.
       for (const rec of games) {
@@ -3549,6 +3575,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
         await ensureLibraryFolders(handle);
         libraryDir = handle;
         libraryDirName = handle.name;
+        syncSavesWithDisk().then(() => render()).catch(e => console.warn("Save sync failed:", e));
       } else {
         // A fresh user gesture is required to re-grant permission across
         // sessions; keep the remembered name so the status line explains
@@ -3623,6 +3650,58 @@ https://github.com/nodeca/pako/blob/main/LICENSE
     } catch (_) {
       // Folder may already be gone -- nothing more to do.
     }
+  }
+
+  // ---- Saves/<game>/ -------------------------------------------------------------
+  // QuantiLoader's save guard hands every snapshot to this, so each game's save lives in the
+  // library folder as Saves/<game>/save.json. createWritable() writes to a temporary file and
+  // swaps it in on close(), so a crash mid-write never leaves a half-written save behind.
+  window.__quantiSortWriteSave = async function (folder, text) {
+    if (!libraryDir) return false;
+    const saves = await libraryDir.getDirectoryHandle(LIB_SAVES_FOLDER, { create: true });
+    const dir = await saves.getDirectoryHandle(folder, { create: true });
+    const w = await (await dir.getFileHandle("save.json", { create: true })).createWritable();
+    await w.write(text);
+    await w.close();
+    return true;
+  };
+
+  // Saves found on disk come into the save store (after a cleared browser, or from another
+  // computer), and saves only this browser has go out to disk. The newer copy wins.
+  async function syncSavesWithDisk() {
+    const qs = window.__quantiSaves;
+    if (!libraryDir || !qs) return null;
+    let imported = 0, written = 0;
+    const saves = await libraryDir.getDirectoryHandle(LIB_SAVES_FOLDER, { create: true });
+    const disk = new Map();
+    for await (const [name, h] of saves.entries()) {
+      if (h.kind !== "directory") continue;
+      try {
+        const text = await (await (await h.getFileHandle("save.json")).getFile()).text();
+        disk.set(name.toLowerCase(), Number(JSON.parse(text).updatedAt) || 0);
+        if (await qs.importSerialized(text)) imported++;
+      } catch (e) {
+        if (!e || e.name !== "NotFoundError") console.warn("Skipped Saves/" + name + "/save.json:", e);
+      }
+    }
+    for (const s of await qs.list()) {
+      if (disk.has(s.key) && disk.get(s.key) >= (s.updatedAt || 0)) continue;
+      const text = await qs.exportSerialized(s.key);
+      if (text && await window.__quantiSortWriteSave(s.folder, text).catch(() => false)) written++;
+    }
+    await loadSaveIndex();
+    return { imported, written };
+  }
+
+  let saveIndex = new Map();
+  async function loadSaveIndex() {
+    try { saveIndex = new Map((window.__quantiSaves ? await window.__quantiSaves.list() : []).map(s => [s.key, s])); }
+    catch (_) { saveIndex = new Map(); }
+  }
+  // Same name QuantiLoader derives when it starts the bundle: its manifest title, or the file name.
+  function saveKeyFor(rec) {
+    const qs = window.__quantiSaves;
+    return rec.saveKey || (qs ? qs.keyOf("", rec.fileName) : "");
   }
 
   async function readManifest(file) {
@@ -3785,6 +3864,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
     rec.lastModified = file.lastModified || now;
     rec.kind = hint.kind || meta.kind || "other";
     rec.title = hint.title || rec.title || meta.title || cleanTitle(file.name);
+    if (window.__quantiSaves) rec.saveKey = window.__quantiSaves.keyOf(meta.manifest && meta.manifest.title, file.name);
     rec.bundle = Boolean(meta.bundle);
     rec.entry = meta.entry || rec.entry || "";
     if (meta.core) rec.core = meta.core;
@@ -3878,6 +3958,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
           rec.bundle = Boolean(meta.bundle);
           rec.entry = meta.entry || rec.entry || "";
           rec.storageMissing = false;
+          if (window.__quantiSaves) rec.saveKey = window.__quantiSaves.keyOf(meta.manifest && meta.manifest.title, rec.fileName);
           if (!rec.developer && meta.developer) rec.developer = meta.developer;
           if (!rec.genre && meta.genre) rec.genre = meta.genre;
           if (!rec.year && meta.year) rec.year = meta.year;
@@ -4067,6 +4148,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
           <p class="qs-desc">${esc(rec.description || "No description yet. Use EDIT to customize this library entry.")}</p>
           ${status}
           <div class="qs-meta"><span>${esc(fmtSize(rec.fileSize))}</span><span>${esc(String(rec.launchCount || 0))} LOADS</span></div>
+          ${saveIndex.has(saveKeyFor(rec)) ? `<div class="qs-meta" title="Backed up by the save guard${libraryDir ? " and in Saves/" + esc(saveIndex.get(saveKeyFor(rec)).folder) + "/" : ""}"><span>&#9635; SAVE BACKED UP</span><span>${esc(fmtDate(saveIndex.get(saveKeyFor(rec)).updatedAt))}</span></div>` : ""}
           <div class="qs-actions">
             <button type="button" class="qs-sel" data-action="select" data-id="${esc(rec.id)}" aria-pressed="${selected.has(rec.id)}" title="Select (shift-click selects a range)" aria-label="Select ${esc(rec.title)}">${selected.has(rec.id) ? "■" : "□"}</button>
             ${mainAction}
@@ -4159,6 +4241,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
         rec.kind = meta.kind || rec.kind || "other";
         rec.bundle = Boolean(meta.bundle);
         rec.entry = meta.entry || rec.entry || "";
+        if (window.__quantiSaves) rec.saveKey = window.__quantiSaves.keyOf(meta.manifest && meta.manifest.title, file.name);
         rec.updatedAt = Date.now();
         await writeGameBundle(rec).catch(err => console.warn("Library folder write failed:", err));
         await putGame(rec);
@@ -4211,6 +4294,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
 
   async function refresh() {
     games = await getAllGames();
+    await loadSaveIndex();
     await normalizeOrder(true);
     pruneSelection();
     render();
@@ -4754,6 +4838,517 @@ https://github.com/nodeca/pako/blob/main/LICENSE
   window.__quantiSortRefresh = refresh;
 
   init();
+})();
+</script>
+<script>
+/* QuantiSaves: every game QuantiLoader starts runs under a save guard.
+ *
+ * All games share this page's origin, so their saves all land in the same localStorage and
+ * IndexedDB, where a cleared browser, a full quota or another tab can lose or stall them. The
+ * guard works out which storage belongs to the running game (localStorage keys it writes,
+ * IndexedDB records it writes), keeps a snapshot of exactly that in a save store of its own,
+ * mirrors the snapshot to Saves/<game>/save.json in the QuantiSorter library folder, and puts
+ * back anything missing the next time the game starts. It never overwrites data the browser
+ * still has: live saves always win.
+ *
+ * It also takes the sharp edges off saving: a full localStorage no longer throws in the middle
+ * of a save (the value is kept by the guard instead), and a quota error or a database locked by
+ * another tab shows a message instead of leaving the game waiting on a save that never lands.
+ */
+(() => {
+  "use strict";
+  const SAVE_DB = "quantiverse-saves", SAVE_STORE = "games", FORMAT = 1;
+  const OWN_DBS = new Set(["quantinexus-sorter", "quantiverter-webretro-cores", SAVE_DB]);
+  const SKIP_DB = /cache/i;                    // UnityCache and friends: big, and re-creatable
+  const OWN_KEY = /^(bl-theme|bf-compress|bf-ruffle|bf-dos|jsdos\.8\..*|webretro_settings_.*|RetroArch_settings_.*)$/;   // app/emulator settings, not saves
+  const DEBOUNCE_MS = 2000, MAX_WAIT_MS = 10000, SCAN_MS = 15000, OPEN_TIMEOUT_MS = 5000;
+
+  const nativeOpen = IDBFactory.prototype.open;
+  const nativeSet = Storage.prototype.setItem, nativeGet = Storage.prototype.getItem;
+  const tagOf = (v) => Object.prototype.toString.call(v).slice(8, -1);
+  const isQuota = (e) => Boolean(e) && (e.name === "QuotaExceededError" || e.code === 22 || e.code === 1014 || e.name === "NS_ERROR_DOM_QUOTA_REACHED");
+
+  // Folder name for Saves/<folder>/ (readable, safe on Windows/macOS/Linux) and the store key.
+  function saveFolderName(title, fileName) {
+    const base = String(title || "").trim() ||
+      String(fileName || "").replace(/\.bootable\.zip$/i, "").replace(/\.zip$/i, "");
+    const cleaned = base.replace(/[\/\\:*?"<>|\u0000-\u001f]/g, " ").replace(/\s+/g, " ")
+      .replace(/^[. ]+|[. ]+$/g, "").trim();
+    return (cleaned || "game").slice(0, 80);
+  }
+  const saveKeyOf = (folder) => folder.toLowerCase();
+
+  // ---- the save store ------------------------------------------------------------------
+  let storeDb = null;
+  function openStore() {
+    if (storeDb) return Promise.resolve(storeDb);
+    return new Promise((resolve, reject) => {
+      const req = nativeOpen.call(indexedDB, SAVE_DB, 1);
+      req.onupgradeneeded = () => {
+        if (!req.result.objectStoreNames.contains(SAVE_STORE)) req.result.createObjectStore(SAVE_STORE, { keyPath: "key" });
+      };
+      req.onsuccess = () => {
+        storeDb = req.result;
+        storeDb.onversionchange = () => { storeDb.close(); storeDb = null; };
+        resolve(storeDb);
+      };
+      req.onerror = () => reject(req.error || new Error("The save store could not be opened."));
+      req.onblocked = () => reject(new Error("The save store is locked by another tab."));
+    });
+  }
+  async function storeOp(mode, fn) {
+    const db = await openStore();
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction(SAVE_STORE, mode);
+      let result;
+      const req = fn(tx.objectStore(SAVE_STORE));
+      if (req) req.onsuccess = () => { result = req.result; };
+      tx.oncomplete = () => resolve(result);
+      tx.onerror = () => reject(tx.error);
+      tx.onabort = () => reject(tx.error || new Error("Save store transaction aborted"));
+    });
+  }
+  const storeGet = (key) => storeOp("readonly", (s) => s.get(key));
+  const storePut = (rec) => storeOp("readwrite", (s) => s.put(rec));
+  const storeAll = () => storeOp("readonly", (s) => s.getAll());
+
+  // ---- save.json: records with binary data survive JSON -----------------------------------
+  function toB64(bytes) {
+    let s = "";
+    for (let i = 0; i < bytes.length; i += 0x8000) s += String.fromCharCode.apply(null, bytes.subarray(i, i + 0x8000));
+    return btoa(s);
+  }
+  function fromB64(b64) {
+    const bin = atob(b64), out = new Uint8Array(bin.length);
+    for (let i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
+    return out;
+  }
+  async function encode(v) {
+    if (v === undefined) return { $qv: "undef" };
+    if (typeof v === "number" && !Number.isFinite(v)) return { $qv: "num", v: String(v) };
+    if (typeof v === "bigint") return { $qv: "bigint", v: String(v) };
+    if (v === null || typeof v !== "object") return v;
+    const t = tagOf(v);
+    if (t === "Date") return { $qv: "date", v: v.getTime() };
+    if (t === "ArrayBuffer") return { $qv: "ab", b64: toB64(new Uint8Array(v)) };
+    if (ArrayBuffer.isView(v)) return { $qv: "view", t: t, b64: toB64(new Uint8Array(v.buffer, v.byteOffset, v.byteLength)) };
+    if (t === "Blob" || t === "File") return { $qv: "blob", type: v.type, name: t === "File" ? v.name : undefined, b64: toB64(new Uint8Array(await v.arrayBuffer())) };
+    if (t === "Map") return { $qv: "map", v: await Promise.all([...v].map(async ([a, b]) => [await encode(a), await encode(b)])) };
+    if (t === "Set") return { $qv: "set", v: await Promise.all([...v].map(encode)) };
+    if (Array.isArray(v)) return Promise.all(v.map(encode));
+    const o = {};
+    for (const k of Object.keys(v)) o[k] = await encode(v[k]);
+    return o;
+  }
+  function decode(v) {
+    if (v === null || typeof v !== "object") return v;
+    if (Array.isArray(v)) return v.map(decode);
+    switch (v.$qv) {
+      case "undef": return undefined;
+      case "num": return Number(v.v);
+      case "bigint": return typeof BigInt === "function" ? BigInt(v.v) : Number(v.v);
+      case "date": return new Date(v.v);
+      case "ab": return fromB64(v.b64).buffer;
+      case "view": {
+        const bytes = fromB64(v.b64), T = globalThis[v.t];
+        if (v.t === "DataView") return new DataView(bytes.buffer);
+        return typeof T === "function" && T.BYTES_PER_ELEMENT ? new T(bytes.buffer) : bytes;
+      }
+      case "blob": {
+        const bytes = fromB64(v.b64);
+        return v.name != null ? new File([bytes], v.name, { type: v.type }) : new Blob([bytes], { type: v.type });
+      }
+      case "map": return new Map(v.v.map(([a, b]) => [decode(a), decode(b)]));
+      case "set": return new Set(v.v.map(decode));
+    }
+    const o = {};
+    for (const k of Object.keys(v)) o[k] = decode(v[k]);
+    return o;
+  }
+  async function serialize(rec) {
+    // The record has its own "kind" (the game type), so the file marker gets a field of its own.
+    return JSON.stringify({ $type: "quantiverse-save", ...(await encode(rec)) });
+  }
+  function parseSerialized(text) {
+    const o = JSON.parse(text);
+    if (!o || o.$type !== "quantiverse-save" || typeof o.key !== "string") throw new Error("Not a Quantiverse save file.");
+    delete o.$type;
+    return decode(o);
+  }
+  const hasData = (rec) => Boolean(rec) && (Object.keys(rec.local || {}).length > 0 ||
+    (rec.idb || []).some((d) => d.stores.some((s) => s.records.length)) || Object.keys(rec.files || {}).length > 0);
+
+  // ---- messages that must not go unnoticed --------------------------------------------
+  const warned = new Set();
+  function warn(id, msg) {
+    console.warn("QuantiSaves:", msg);
+    if (warned.has(id)) return;
+    warned.add(id);
+    const d = document.createElement("div");
+    d.setAttribute("role", "alert");
+    d.setAttribute("style", "position:fixed;right:12px;bottom:12px;max-width:min(460px,calc(100% - 24px));z-index:2147483647;padding:10px 12px;" +
+      "background:#1a1405;color:#ffd23f;border:1px solid #ffd23f;font:12px/1.5 ui-monospace,Menlo,Consolas,monospace;white-space:pre-wrap;cursor:pointer;box-shadow:0 4px 18px rgba(0,0,0,.5)");
+    d.textContent = "SAVE WARNING: " + msg + "   (click to dismiss)";
+    d.onclick = () => d.remove();
+    (document.body || document.documentElement).appendChild(d);
+    setTimeout(() => d.remove(), 20000);
+  }
+
+  // ---- the running game ----------------------------------------------------------------
+  let session = null;
+  let timer = null, firstDirtyAt = 0, snapping = null, again = false;
+
+  function dirty() {
+    if (!session) return;
+    const now = Date.now();
+    if (!firstDirtyAt) firstDirtyAt = now;
+    clearTimeout(timer);
+    timer = setTimeout(() => snapshot(), now - firstDirtyAt >= MAX_WAIT_MS ? 0 : DEBOUNCE_MS);
+  }
+
+  const idOf = (k) => typeof k === "string" ? "s:" + k : typeof k === "number" ? "n:" + k : "j:" + JSON.stringify(k, (_, x) => tagOf(x) === "Date" ? { d: +x } : x);
+  function remember(dbName, storeName, key) {
+    if (OWN_DBS.has(dbName) || SKIP_DB.test(dbName) || key === undefined) return;
+    if (!session.idb.has(dbName)) session.idb.set(dbName, new Map());
+    const stores = session.idb.get(dbName);
+    if (!stores.has(storeName)) stores.set(storeName, new Map());
+    stores.get(storeName).set(idOf(key), key);
+  }
+
+  // Installed once per window (the page, plus same-origin frames an emulator runs in).
+  const hooked = new WeakSet();
+  function install(win) {
+    if (!win || hooked.has(win)) return;
+    hooked.add(win);
+    try {
+      const SP = win.Storage.prototype, nSet = SP.setItem, nGet = SP.getItem, nRemove = SP.removeItem;
+      const isLocal = (st) => { try { return st === win.localStorage; } catch (_) { return false; } };
+      SP.setItem = function (k, v) {
+        if (!session || !isLocal(this)) return nSet.apply(this, arguments);
+        k = String(k); v = String(v);
+        try {
+          nSet.call(this, k, v);
+          session.overflow.delete(k);
+        } catch (e) {
+          if (!isQuota(e)) throw e;
+          // Throwing here is what leaves games stuck on a save that never finishes.
+          session.overflow.set(k, v);
+          warn("quota-local", `Browser storage is full. ${session.title}'s save was kept in Quantiverse's save store instead, so it is not lost, but free some space (Settings > Privacy > Site data) soon.`);
+        }
+        if (!OWN_KEY.test(k)) { session.local.add(k); dirty(); }
+      };
+      SP.getItem = function (k) {
+        if (session && session.overflow.size && isLocal(this) && session.overflow.has(String(k))) return session.overflow.get(String(k));
+        return nGet.apply(this, arguments);
+      };
+      SP.removeItem = function (k) {
+        if (session && isLocal(this)) { session.overflow.delete(String(k)); if (session.local.has(String(k))) dirty(); }
+        return nRemove.apply(this, arguments);
+      };
+      // Changes made by other tabs are theirs, not this game's.
+      win.addEventListener("storage", (e) => { if (session && e.key) session.foreign.add(e.key); });
+    } catch (e) { console.warn("QuantiSaves: localStorage hook failed", e); }
+
+    try {
+      const OSP = win.IDBObjectStore.prototype;
+      const seenTx = new WeakSet();
+      const watchTx = (tx) => {
+        if (seenTx.has(tx)) return;
+        seenTx.add(tx);
+        tx.addEventListener("abort", () => {
+          if (session && isQuota(tx.error)) warn("quota-idb", `Browser storage is full, so ${session.title} could not finish saving. Free some space (Settings > Privacy > Site data) and save again.`);
+        });
+      };
+      for (const m of ["put", "add"]) {
+        const n = OSP[m];
+        OSP[m] = function () {
+          const req = n.apply(this, arguments);
+          if (session) {
+            const dbName = this.transaction.db.name, storeName = this.name;
+            if (!OWN_DBS.has(dbName)) {
+              watchTx(this.transaction);
+              req.addEventListener("success", () => { if (session) { remember(dbName, storeName, req.result); dirty(); } });
+            }
+          }
+          return req;
+        };
+      }
+      for (const m of ["delete", "clear"]) {
+        const n = OSP[m];
+        OSP[m] = function () {
+          const req = n.apply(this, arguments);
+          if (session && !OWN_DBS.has(this.transaction.db.name)) req.addEventListener("success", dirty);
+          return req;
+        };
+      }
+      const FP = win.IDBFactory.prototype, nOpen = FP.open;
+      FP.open = function (name) {
+        const req = nOpen.apply(this, arguments);
+        if (session && !OWN_DBS.has(String(name))) {
+          req.addEventListener("blocked", () => warn("blocked", `${session.title}'s save storage is locked by another tab or window. Close other copies of this game (or other Quantiverse tabs) so it can save.`));
+        }
+        return req;
+      };
+    } catch (e) { console.warn("QuantiSaves: IndexedDB hook failed", e); }
+  }
+
+  // Opens an existing database without creating or upgrading it; null if it does not exist.
+  function openExisting(name) {
+    return new Promise((resolve, reject) => {
+      let settled = false, created = false;
+      const req = nativeOpen.call(indexedDB, name);
+      const t = setTimeout(() => { settled = true; reject(new Error("timed out opening " + name)); }, OPEN_TIMEOUT_MS);
+      req.onupgradeneeded = () => { created = true; req.transaction.abort(); };
+      req.onsuccess = () => {
+        clearTimeout(t);
+        const db = req.result;
+        if (settled) { db.close(); return; }
+        db.onversionchange = () => db.close();   // never block the game's own upgrades
+        resolve(db);
+      };
+      req.onerror = (e) => { clearTimeout(t); if (created) { e.preventDefault(); resolve(null); } else reject(req.error); };
+    });
+  }
+
+  // Reads the records this game owns (plus the parent folders of path-like keys, which
+  // Emscripten's IDBFS needs to mount a save file) and the schema to recreate the database.
+  async function readDb(name, stores) {
+    const db = await openExisting(name);
+    if (!db) return null;
+    try {
+      const out = { name, version: db.version, stores: [] };
+      for (const [storeName, keys] of stores) {
+        if (!db.objectStoreNames.contains(storeName)) { keys.clear(); continue; }
+        const tx = db.transaction(storeName, "readonly"), os = tx.objectStore(storeName);
+        const schema = {
+          name: storeName, keyPath: os.keyPath, autoIncrement: os.autoIncrement,
+          indexes: [...os.indexNames].map((n) => { const ix = os.index(n); return { name: n, keyPath: ix.keyPath, unique: ix.unique, multiEntry: ix.multiEntry }; }),
+          records: []
+        };
+        const all = new Map(keys);
+        for (const k of keys.values()) {
+          if (typeof k !== "string" || k.charAt(0) !== "/") continue;
+          for (let p = k.slice(0, k.lastIndexOf("/")); p; p = p.slice(0, p.lastIndexOf("/"))) all.set("s:" + p, p);
+        }
+        await new Promise((resolve, reject) => {
+          const got = new Map();
+          for (const [id, k] of all) {
+            const r = os.get(k);
+            r.onsuccess = () => { if (r.result !== undefined) got.set(id, [k, r.result]); };
+          }
+          tx.oncomplete = () => {
+            for (const [id] of keys) if (!got.has(id)) keys.delete(id);   // the game deleted it
+            // Parents first, so a restore can recreate folders before files.
+            schema.records = [...got.values()].sort((a, b) =>
+              typeof a[0] === "string" && typeof b[0] === "string" ? a[0].length - b[0].length : 0);
+            resolve();
+          };
+          tx.onabort = () => reject(tx.error);
+        });
+        if (schema.records.length) out.stores.push(schema);
+      }
+      return out.stores.length ? out : null;
+    } finally {
+      db.close();
+    }
+  }
+
+  // Puts back records the browser no longer has. A database that is gone is recreated with
+  // its original schema; an existing one only gets its missing records.
+  async function restoreDb(d) {
+    let db = null;
+    try {
+      db = await new Promise((resolve, reject) => {
+        const req = nativeOpen.call(indexedDB, d.name, d.version);
+        req.onupgradeneeded = (e) => {
+          if (e.oldVersion !== 0) { req.transaction.abort(); return; }   // exists at an older version: leave it to the game
+          for (const s of d.stores) {
+            const os = req.result.createObjectStore(s.name, { keyPath: s.keyPath == null ? undefined : s.keyPath, autoIncrement: s.autoIncrement });
+            for (const ix of s.indexes || []) os.createIndex(ix.name, ix.keyPath, { unique: ix.unique, multiEntry: ix.multiEntry });
+          }
+        };
+        req.onsuccess = () => resolve(req.result);
+        req.onerror = (e) => { e.preventDefault(); resolve(null); };
+      });
+      if (!db) db = await openExisting(d.name);   // newer version already there
+      if (!db) return 0;
+      let added = 0;
+      for (const s of d.stores) {
+        if (!db.objectStoreNames.contains(s.name) || !s.records.length) continue;
+        await new Promise((resolve) => {
+          const tx = db.transaction(s.name, "readwrite"), os = tx.objectStore(s.name);
+          for (const [k, v] of s.records) {
+            const c = os.count(k);
+            c.onsuccess = () => {
+              if (c.result) return;
+              try { os.keyPath == null ? os.put(v, k) : os.put(v); added++; } catch (e) { console.warn("QuantiSaves: could not restore a record", e); }
+            };
+          }
+          tx.oncomplete = resolve;
+          tx.onabort = () => { console.warn("QuantiSaves: restore of " + d.name + "/" + s.name + " failed", tx.error); resolve(); };
+        });
+      }
+      return added;
+    } catch (e) {
+      console.warn("QuantiSaves: could not restore " + d.name, e);
+      return 0;
+    } finally {
+      if (db) db.close();
+    }
+  }
+
+  function localNow(k) { return nativeGet.call(localStorage, k); }
+  function allLocal() {
+    const out = new Map();
+    try { for (let i = 0; i < localStorage.length; i++) { const k = localStorage.key(i); out.set(k, localNow(k)); } } catch (_) {}
+    return out;
+  }
+  // Keys added or changed since the last look belong to the game, including ones written as
+  // properties (localStorage.save = ...), which bypass setItem.
+  function scanLocal() {
+    const now = allLocal();
+    let changed = false;
+    for (const [k, v] of now) {
+      if (session.baseline.get(k) !== v && !OWN_KEY.test(k) && !session.foreign.has(k)) {
+        if (!session.local.has(k)) session.local.add(k);
+        changed = true;
+      }
+    }
+    for (const k of session.local) if (!now.has(k) && !session.overflow.has(k)) changed = true;
+    session.baseline = now;
+    return changed;
+  }
+
+  async function snapshot() {
+    if (!session) return;
+    if (snapping) { again = true; return snapping; }
+    clearTimeout(timer); firstDirtyAt = 0;
+    snapping = (async () => {
+      try {
+        scanLocal();
+        const local = {};
+        for (const k of [...session.local]) {
+          const v = session.overflow.has(k) ? session.overflow.get(k) : localNow(k);
+          if (v === null) session.local.delete(k); else local[k] = v;
+        }
+        const idb = [];
+        for (const [name, stores] of session.idb) {
+          try {
+            const d = await readDb(name, stores);
+            if (d) { idb.push(d); session.lastDb.set(name, d); } else session.lastDb.delete(name);
+          } catch (e) {
+            console.warn("QuantiSaves: could not read " + name + ", keeping the previous snapshot of it", e);
+            if (session.lastDb.has(name)) idb.push(session.lastDb.get(name));
+          }
+        }
+        const rec = {
+          key: session.key, folder: session.folder, title: session.title, kind: session.kind, format: FORMAT,
+          createdAt: session.createdAt, updatedAt: Date.now(), local, idb, files: session.files
+        };
+        if (!hasData(rec) && !session.stored) return;
+        const text = await serialize({ ...rec, updatedAt: 0 });
+        if (text === session.lastText) return;   // nothing new since the last snapshot
+        await storePut(rec);
+        session.lastText = text;
+        session.stored = true;
+        session.savedAt = rec.updatedAt;
+        mirror(rec);
+      } catch (e) {
+        console.error("QuantiSaves: snapshot failed", e);
+        warn("snapshot", `Quantiverse could not back up ${session.title}'s save (${e && e.message ? e.message : e}). The game's own save is unaffected.`);
+      } finally {
+        snapping = null;
+        if (again) { again = false; dirty(); }
+      }
+    })();
+    return snapping;
+  }
+
+  // Mirrors a snapshot to Saves/<folder>/save.json when QuantiSorter has a library folder.
+  async function mirror(rec) {
+    if (typeof window.__quantiSortWriteSave !== "function") return;
+    try { await window.__quantiSortWriteSave(rec.folder, await serialize(rec)); }
+    catch (e) { console.warn("QuantiSaves: could not write Saves/" + rec.folder + "/save.json", e); }
+  }
+
+  async function begin(info) {
+    if (session) return session.summary;
+    const folder = saveFolderName(info && info.title, info && info.fileName);
+    session = {
+      key: saveKeyOf(folder), folder, title: String((info && info.title) || folder), kind: (info && info.kind) || "",
+      createdAt: Date.now(), local: new Set(), idb: new Map(), lastDb: new Map(), files: {},
+      overflow: new Map(), foreign: new Set(), baseline: new Map(), lastText: "", stored: false, savedAt: 0
+    };
+    install(window);
+    try { if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {}); } catch (_) {}
+
+    const restored = { local: 0, records: 0 };
+    let rec = null;
+    try { rec = await storeGet(session.key); }
+    catch (e) { warn("store", "Quantiverse's save store is unavailable (" + (e && e.message ? e.message : e) + "), so this session's saves are not backed up."); }
+    if (rec) {
+      session.createdAt = rec.createdAt || session.createdAt;
+      session.stored = true;
+      session.savedAt = rec.updatedAt || 0;
+      session.files = rec.files || {};
+      for (const [k, v] of Object.entries(rec.local || {})) {
+        session.local.add(k);
+        if (localNow(k) !== null) continue;
+        try { nativeSet.call(localStorage, k, v); }
+        catch (e) { if (isQuota(e)) session.overflow.set(k, v); else continue; }
+        restored.local++;
+      }
+      for (const d of rec.idb || []) {
+        const stores = new Map();
+        for (const s of d.stores) stores.set(s.name, new Map(s.records.map(([k]) => [idOf(k), k])));
+        session.idb.set(d.name, stores);
+        session.lastDb.set(d.name, d);
+        restored.records += await restoreDb(d);
+      }
+      session.lastText = await serialize({ ...rec, updatedAt: 0 }).catch(() => "");
+    }
+    session.baseline = allLocal();
+    setInterval(() => { if (session && scanLocal()) dirty(); }, SCAN_MS);
+    document.addEventListener("visibilitychange", () => { if (document.visibilityState === "hidden") snapshot(); });
+    window.addEventListener("pagehide", () => snapshot());
+
+    const files = Object.keys(session.files).length;
+    session.summary = {
+      folder, key: session.key, known: Boolean(rec), savedAt: session.savedAt,
+      restored: restored.local + restored.records, restoredLocal: restored.local, restoredRecords: restored.records, files
+    };
+    return session.summary;
+  }
+
+  // Imports a save.json (from the library folder or a backup). The newer copy wins.
+  async function importSerialized(text) {
+    const rec = parseSerialized(text);
+    rec.key = saveKeyOf(saveFolderName(rec.folder || rec.title));
+    rec.folder = saveFolderName(rec.folder || rec.title);
+    const have = await storeGet(rec.key).catch(() => null);
+    if (have && (have.updatedAt || 0) >= (rec.updatedAt || 0)) return false;
+    await storePut(rec);
+    return true;
+  }
+
+  window.__quantiSaves = {
+    begin,
+    snapshot,
+    attach: install,                          // for emulator frames on this origin
+    folderName: saveFolderName,
+    keyOf: (title, fileName) => saveKeyOf(saveFolderName(title, fileName)),
+    // Named binary files (js-dos keeps a game's disk changes here).
+    readFile: (name) => (session && session.files[name]) || null,
+    writeFile: async (name, bytes) => {
+      if (!session) throw new Error("No game is running.");
+      session.files = { ...session.files, [name]: bytes instanceof Uint8Array ? bytes : new Uint8Array(bytes) };
+      await snapshot();
+    },
+    list: () => storeAll().then((all) => all.map((r) => ({ key: r.key, folder: r.folder, title: r.title, kind: r.kind, updatedAt: r.updatedAt }))),
+    exportSerialized: async (key) => { const r = await storeGet(key); return r ? serialize(r) : null; },
+    importSerialized,
+    get active() { return Boolean(session); }
+  };
 })();
 </script>
 <script>

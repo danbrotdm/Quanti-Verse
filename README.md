@@ -34,6 +34,18 @@ A bootable bundle is a `.zip` file. The folder that holds `manifest.json` is the
 - **`kind`:** one of `web`, `flash`, `dos`, `webretro`.
 - **Optional metadata**, which QuantiSorter reads: `entry`, `system`, `core`, `author`, `developer`, `genre`, `year`, `tags`, `description`.
 
+## Saves
+
+Every game QuantiLoader starts runs under a **save guard**. All games share one origin inside Quantiverse, so their saves all live in the same `localStorage` and IndexedDB. The guard works out which data belongs to the running game: the `localStorage` keys it writes (including `localStorage.x = …` writes) and the IndexedDB records it writes. It snapshots exactly that data into a save store of its own.
+
+- **`Saves/<game>/save.json`:** once QuantiSorter has a library folder, every snapshot is mirrored there. The file is swapped in atomically, so a crash can't leave half a save behind. When the folder is connected, saves on disk are imported and saves that exist only in the browser are written out; the newer copy wins.
+- **Restore:** at launch, anything the browser has lost (cleared site data, a new browser, a restored backup) is put back before the game's scripts run. Data the browser still has is never overwritten.
+- **Hardening:** a full `localStorage` no longer throws halfway through a save; the value is kept by the guard and the player is warned. IndexedDB quota errors, and databases locked by another tab, show a warning instead of leaving the game stuck on a save that never finishes. The guard also asks the browser to keep site data persistent.
+- **Flash:** each game runs from its own virtual folder, so two games that both ship a `game.swf` no longer overwrite each other's SharedObjects.
+- **DOS:** js-dos progress (its disk changes) is stored by the guard. js-dos's own store (OPFS) is unavailable when the page is opened from disk, where saving used to fail silently.
+
+These fixes apply to bundles made by this version of QuantiVerter. Flash, DOS and WebRetro bundles made earlier still run, but they keep their old save behaviour until they are converted again.
+
 ## Repository layout
 
 ```
@@ -58,4 +70,4 @@ The Ruffle and js-dos blocks (`<script type="application/octet-stream" id="qv-ru
 1. ~~**Fully offline Flash and DOS**~~ (done)
 2. ~~**QuantiSorter bulk actions**~~ (done)
 3. **Full library backup and restore:** a single archive that holds the index, the bundles, and the saves.
-4. **Saves:** a per-game `Saves/<game>/` folder structure and hardening of save I/O, so that interrupted or stuck saves can't hang a game (the "hanging save icon" class of bug).
+4. ~~**Saves:** `Saves/<game>/` and save hardening~~ (done, see [Saves](#saves))
