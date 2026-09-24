@@ -59,6 +59,7 @@ These fixes apply to bundles made by this version of QuantiVerter. Flash, DOS an
 ```
 index.html                 the whole app (HTML + CSS + JS + embedded runtimes)
 tools/build_runtimes.py    re-embeds the Ruffle and js-dos runtimes into index.html
+tests/                     browser test suite (tests/run_all.sh), see tests/README.md
 README.md
 ```
 
