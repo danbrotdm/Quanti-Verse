@@ -570,6 +570,29 @@
   "sizeMB": 4.4,
   "status": "ok"
  },
+ "simutrans": {
+  "bundle": "library/Simutrans.bootable.zip",
+  "check": {
+   "bundleMB": 8.7,
+   "colorsOverTime": [
+    602,
+    1651,
+    1663,
+    1668,
+    1683,
+    1074,
+    595,
+    595
+   ],
+   "errors": [],
+   "label": "Simutrans",
+   "leaked": [],
+   "title": "Simutrans 124.1.1 Release Candidate - r",
+   "verterWarnings": []
+  },
+  "sizeMB": 8.7,
+  "status": "ok"
+ },
  "sopwith": {
   "bundle": "library/SDL_Sopwith.bootable.zip",
   "check": {

@@ -577,5 +577,23 @@
   "license": "GPL-2.0 (game, OpenGFX, OpenMSX); CC-BY-SA 3.0 (OpenSFX)",
   "description": "Open-source transport simulation: build trains, road vehicles, ships and aircraft networks. Ships with the free OpenGFX graphics, OpenSFX sounds and OpenMSX music.",
   "check_seconds": 25
+ },
+ {
+  "id": "simutrans",
+  "title": "Simutrans",
+  "repo": "https://github.com/midzer/simutrans",
+  "ref": "emscripten",
+  "developer": "Hansjörg Malthaner and the Simutrans team",
+  "year": 1997,
+  "genre": "Simulation",
+  "tags": [
+   "simulation",
+   "strategy",
+   "transport",
+   "tycoon"
+  ],
+  "license": "Artistic Licence 1.0 (game and pak64)",
+  "description": "Transport simulation: connect towns and industries with trains, trucks, ships and planes. Ships with the pak64 graphics set; sound effects only.",
+  "check_seconds": 25
  }
 ]
