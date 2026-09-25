@@ -155,8 +155,23 @@
   "status": "ok"
  },
  "breakhack": {
-  "error": "clone failed",
-  "status": "build-failed"
+  "bundle": "library/BreakHack.bootable.zip",
+  "check": {
+   "bundleMB": 15.6,
+   "colorsOverTime": [
+    1947,
+    1948,
+    1943,
+    1944
+   ],
+   "errors": [],
+   "label": "BreakHack",
+   "leaked": [],
+   "title": "BreakHack 4.0.3",
+   "verterWarnings": []
+  },
+  "sizeMB": 15.6,
+  "status": "ok"
  },
  "brogue": {
   "bundle": "library/Brogue_Community_Edition.bootable.zip",
