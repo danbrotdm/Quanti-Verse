@@ -1,0 +1,5 @@
+#!/bin/sh
+# Emscripten's pkg-config shim, missing from some SDK releases: search the sysroot's .pc files
+# plus the ones ports/build.py generates (EM_PKG_CONFIG_PATH).
+SR="$EMSDK/upstream/emscripten/cache/sysroot"
+PKG_CONFIG_LIBDIR="$SR/local/lib/pkgconfig:$SR/lib/pkgconfig" PKG_CONFIG_PATH="${EM_PKG_CONFIG_PATH:-}" exec pkg-config "$@"

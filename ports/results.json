@@ -80,33 +80,48 @@
   "status": "ok"
  },
  "chromiumbsu": {
-  "error": "ing directory '/home/user/Quanti-Verse/ports/.work/src/chromiumbsu'\nCDPATH=\"${ZSH_VERSION+.}:\" && cd . && /bin/bash /home/user/Quanti-Verse/ports/.work/src/chromiumbsu/missing aclocal-1.15 -I m4 --install\n/home/user/Quanti-Verse/ports/.work/src/chromiumbsu/missing: line 81: aclocal-1.15: command not found\nWARNING: 'aclocal-1.15' is missing on your system.\n         You should only need it if you modified 'acinclude.m4' or\n         'configure.ac' or m4 files included by 'configure.ac'.\n         The 'aclocal' program is part of the GNU Automake package:\n         <http://www.gnu.org/software/automake>\n         It also requires GNU Autoconf, GNU m4 and Perl in order to run:\n         <http://www.gnu.org/software/autoconf>\n         <http://www.gnu.org/software/m4/>\n         <http://www.perl.org/>\nmake[1]: *** [Makefile:491: aclocal.m4] Error 127\nmake[1]: Leaving directory '/home/user/Quanti-Verse/ports/.work/src/chromiumbsu'\nmake: *** [Makefile:525: ../aclocal.m4] Error 2\nmake: Leaving directory '/home/user/Quanti-Verse/ports/.work/src/chromiumbsu/src'\nem++: error: src/*.o: No such file or directory (\"src/*.o\" was expected to be an input file, based on the commandline arguments provided)\n",
+  "error": "build failed:\nchecking for QuesoGLC/glc.h... no\nchecking for glcGenContext in -lGLC... no\nchecking for glcGenContext in -lglc32... no\nchecking for ftgl >= 2.1.3... no\nchecking for sdl2... yes\nchecking for sdl >= 1.1.6... yes\nchecking for library containing glutMainLoop... none required\nchecking for GL/glut.h... yes\nchecking for compiling a minimal GLUT program... yes\nchecking for linking a minimal GLUT program... no\nchecking for openal... yes\nchecking for freealut... no\nchecking for SDL2_mixer... yes\nchecking for SDL_mixer... no\nchecking for SDL2_image... yes\nchecking for SDL_image... no\nchecking for GL/glpng.h... no\nchecking for glpng/glpng.h... no\nchecking for pngBind in -lglpng... no\nconfigure: error: cannot find GLC or FTGL >= 2.1.3 (text renderer)\n",
   "status": "build-failed"
  },
  "cromagrally": {
-  "bundle": null,
+  "bundle": "library/Cro-Mag_Rally.bootable.zip",
   "check": {
-   "bundleMB": 122.7,
+   "bundleMB": 92.7,
    "colorsOverTime": [
-    1,
-    1,
-    1,
-    1,
-    1,
-    1
+    13319,
+    13078,
+    13448,
+    13448,
+    13448,
+    13448
    ],
    "errors": [],
    "label": "Cro-Mag_Rally",
    "leaked": [],
-   "title": "Cro-Mag Rally",
+   "title": "Cro-Mag Rally 3.0.1",
    "verterWarnings": []
   },
-  "sizeMB": null,
-  "status": "check-failed"
+  "sizeMB": 92.7,
+  "status": "ok"
  },
  "cuyo": {
-  "error": "build failed:\nemmake: \"make -j4 -C src\" in \"/home/user/Quanti-Verse/ports/.work/src/cuyo\"\nmake: Entering directory '/home/user/Quanti-Verse/ports/.work/src/cuyo/src'\nmake: *** No targets specified and no makefile found.  Stop.\nmake: Leaving directory '/home/user/Quanti-Verse/ports/.work/src/cuyo/src'\nem++: error: src/*.o: No such file or directory (\"src/*.o\" was expected to be an input file, based on the commandline arguments provided)\n",
-  "status": "build-failed"
+  "bundle": "library/Cuyo.bootable.zip",
+  "check": {
+   "bundleMB": 7.3,
+   "colorsOverTime": [
+    1148,
+    1222,
+    1235,
+    1235
+   ],
+   "errors": [],
+   "label": "Cuyo",
+   "leaked": [],
+   "title": "Cuyo",
+   "verterWarnings": []
+  },
+  "sizeMB": 7.3,
+  "status": "ok"
  },
  "dungeonrush": {
   "bundle": "library/Dungeon_Rush.bootable.zip",
@@ -128,14 +143,14 @@
   "status": "ok"
  },
  "emptyclip": {
-  "bundle": null,
+  "bundle": "library/Empty_Clip.bootable.zip",
   "check": {
-   "bundleMB": 4.9,
+   "bundleMB": 6.6,
    "colorsOverTime": [
-    1,
-    1,
-    1,
-    1
+    3695,
+    3653,
+    3653,
+    3653
    ],
    "errors": [],
    "label": "Empty_Clip",
@@ -143,8 +158,8 @@
    "title": "Empty Clip",
    "verterWarnings": []
   },
-  "sizeMB": null,
-  "status": "check-failed"
+  "sizeMB": 6.6,
+  "status": "ok"
  },
  "freegemas": {
   "bundle": "library/Freegemas.bootable.zip",
@@ -223,8 +238,23 @@
   "status": "ok"
  },
  "lbreakouthd": {
-  "error": "build failed:\nemmake: \"make -j4\" in \"/home/user/Quanti-Verse/ports/.work/src/lbreakouthd\"\nmake: *** No targets specified and no makefile found.  Stop.\nem++: error: *.o: No such file or directory (\"*.o\" was expected to be an input file, based on the commandline arguments provided)\n",
-  "status": "build-failed"
+  "bundle": "library/LBreakoutHD.bootable.zip",
+  "check": {
+   "bundleMB": 15.6,
+   "colorsOverTime": [
+    113,
+    113,
+    178,
+    189
+   ],
+   "errors": [],
+   "label": "LBreakoutHD",
+   "leaked": [],
+   "title": "LBreakoutHD",
+   "verterWarnings": []
+  },
+  "sizeMB": 15.6,
+  "status": "ok"
  },
  "liri": {
   "bundle": "library/Li-Ri.bootable.zip",
@@ -246,8 +276,23 @@
   "status": "ok"
  },
  "numptyphysics": {
-  "error": " src/I18n.o src/Interactions.o src/JetStream.o src/Levels.o src/Os.o src/Path.o src/Scene.o src/SceneEvent.o src/Script.o src/Stroke.o src/Ui.o platform/sdl2/OsSDL2.o platform/sdl2/SDL2Renderer.o platform/gl/GLRenderer.o external/thp/thp_format.o external/thp/thp_iterutils.o external/thp/thp_timestep.o external/tinyxml2/tinyxml2.o external/petals_log/petals_log.o external/Box2D/Source/Gen/float/libbox2d.a external/glaserl/libglaserl.a -L/tmp/claude-0/-home-user-Quanti-Verse/7e69a923-2a71-5b08-aef9-c0210ac3fd15/scratchpad/emsdk/upstream/emscripten/cache/sysroot/lib/wasm32-emscripten -L/tmp/claude-0/-home-user-Quanti-Verse/7e69a923-2a71-5b08-aef9-c0210ac3fd15/scratchpad/emsdk/upstream/emscripten/src/lib -lGL-getprocaddr -lal -lhtml5 -lstubs-debug -lnoexit -lc-debug -ldlmalloc-debug -lclang_rt.builtins -lc++-debug-noexcept -lc++abi-debug-noexcept -lsockets -mllvm -combiner-global-alias-analysis=false -mllvm -enable-emscripten-sjlj -mllvm -disable-lsr' failed (returned 1)\nmake: *** [makefile:40: numptyphysics] Error 1\nem++: error: external/stb_loader/*.o: No such file or directory (\"external/stb_loader/*.o\" was expected to be an input file, based on the commandline arguments provided)\n",
-  "status": "build-failed"
+  "bundle": "library/Numpty_Physics.bootable.zip",
+  "check": {
+   "bundleMB": 2.2,
+   "colorsOverTime": [
+    3425,
+    3434,
+    3437,
+    3435
+   ],
+   "errors": [],
+   "label": "Numpty_Physics",
+   "leaked": [],
+   "title": "NumptyPhysics",
+   "verterWarnings": []
+  },
+  "sizeMB": 2.2,
+  "status": "ok"
  },
  "powermanga": {
   "bundle": "library/Powermanga.bootable.zip",
@@ -269,12 +314,42 @@
   "status": "ok"
  },
  "sdlball": {
-  "error": "-emscripten/libvorbis.a /tmp/claude-0/-home-user-Quanti-Verse/7e69a923-2a71-5b08-aef9-c0210ac3fd15/scratchpad/emsdk/upstream/emscripten/cache/sysroot/lib/wasm32-emscripten/libogg.a /tmp/claude-0/-home-user-Quanti-Verse/7e69a923-2a71-5b08-aef9-c0210ac3fd15/scratchpad/emsdk/upstream/emscripten/cache/sysroot/lib/wasm32-emscripten/libharfbuzz.a /tmp/claude-0/-home-user-Quanti-Verse/7e69a923-2a71-5b08-aef9-c0210ac3fd15/scratchpad/emsdk/upstream/emscripten/cache/sysroot/lib/wasm32-emscripten/libfreetype.a /tmp/claude-0/-home-user-Quanti-Verse/7e69a923-2a71-5b08-aef9-c0210ac3fd15/scratchpad/emsdk/upstream/emscripten/cache/sysroot/lib/wasm32-emscripten/libpng.a /tmp/claude-0/-home-user-Quanti-Verse/7e69a923-2a71-5b08-aef9-c0210ac3fd15/scratchpad/emsdk/upstream/emscripten/cache/sysroot/lib/wasm32-emscripten/libz.a /tmp/claude-0/-home-user-Quanti-Verse/7e69a923-2a71-5b08-aef9-c0210ac3fd15/scratchpad/emsdk/upstream/emscripten/cache/sysroot/lib/wasm32-emscripten/libjpeg.a -lal -lhtml5 -lstubs -lnoexit -lc -ldlmalloc -lclang_rt.builtins -lc++-noexcept -lc++abi-noexcept -lsockets -mllvm -combiner-global-alias-analysis=false -mllvm -enable-emscripten-sjlj -mllvm -disable-lsr' failed (returned 1)\n",
-  "status": "build-failed"
+  "bundle": "library/SDL-Ball.bootable.zip",
+  "check": {
+   "bundleMB": 4.4,
+   "colorsOverTime": [
+    1303,
+    1263,
+    9048,
+    9076
+   ],
+   "errors": [],
+   "label": "SDL-Ball",
+   "leaked": [],
+   "title": "SDL-Ball",
+   "verterWarnings": []
+  },
+  "sizeMB": 4.4,
+  "status": "ok"
  },
  "starfighter": {
-  "error": "build failed:\nemmake: \"make -j4\" in \"/home/user/Quanti-Verse/ports/.work/src/starfighter\"\nmake  all-recursive\nmake[1]: Entering directory '/home/user/Quanti-Verse/ports/.work/src/starfighter'\nMaking all in gfx\nmake[2]: Entering directory '/home/user/Quanti-Verse/ports/.work/src/starfighter/gfx'\nmake[2]: Nothing to be done for 'all'.\nmake[2]: Leaving directory '/home/user/Quanti-Verse/ports/.work/src/starfighter/gfx'\nMaking all in locale\nmake[2]: Entering directory '/home/user/Quanti-Verse/ports/.work/src/starfighter/locale'\nmake[2]: *** No rule to make target 'en/LC_MESSAGES/pr-starfighter.mo', needed by 'all-am'.  Stop.\nmake[2]: Leaving directory '/home/user/Quanti-Verse/ports/.work/src/starfighter/locale'\nmake[1]: *** [Makefile:460: all-recursive] Error 1\nmake[1]: Leaving directory '/home/user/Quanti-Verse/ports/.work/src/starfighter'\nmake: *** [Makefile:356: all] Error 2\nemcc: error: src/*.o: No such file or directory (\"src/*.o\" was expected to be an input file, based on the commandline arguments provided)\n",
-  "status": "build-failed"
+  "bundle": "library/Project_Starfighter.bootable.zip",
+  "check": {
+   "bundleMB": 36,
+   "colorsOverTime": [
+    5018,
+    5021,
+    5009,
+    5045
+   ],
+   "errors": [],
+   "label": "Project_Starfighter",
+   "leaked": [],
+   "title": "Project: Starfighter",
+   "verterWarnings": []
+  },
+  "sizeMB": 36.0,
+  "status": "ok"
  },
  "vectoroids": {
   "bundle": "library/Vectoroids.bootable.zip",
@@ -296,23 +371,23 @@
   "status": "ok"
  },
  "violetland": {
-  "bundle": null,
+  "bundle": "library/Violetland.bootable.zip",
   "check": {
-   "bundleMB": 9,
+   "bundleMB": 10.4,
    "colorsOverTime": [
-    1,
-    1,
-    1,
-    1
+    1447,
+    1447,
+    1447,
+    1447
    ],
    "errors": [],
    "label": "Violetland",
    "leaked": [],
-   "title": "Violetland",
+   "title": "violetland v0.5.1",
    "verterWarnings": []
   },
-  "sizeMB": null,
-  "status": "check-failed"
+  "sizeMB": 10.4,
+  "status": "ok"
  },
  "watercloset": {
   "bundle": "library/Water_Closet.bootable.zip",

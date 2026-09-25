@@ -330,7 +330,7 @@
    "kart"
   ],
   "license": "CC BY-NC-SA 4.0 (non-commercial)",
-  "description": "Prehistoric kart racing through Stone, Bronze and Iron Age tracks.",
+  "description": "Prehistoric kart racing through Stone, Bronze and Iron Age tracks. (Music resampled to 22 kHz to fit GitHub's 100 MB file limit; build it with ports/build.py for full-quality music.)",
   "check_seconds": 18
  },
  {

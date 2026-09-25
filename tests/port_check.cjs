@@ -34,7 +34,7 @@ print(len(seen))`, png]).toString());
   const ctx = await b.newContext({ viewport: { width: 960, height: 720 }, locale: 'en-US', acceptDownloads: true });
   const leaked = [], errs = [];
   await ctx.route('**/*', r => { const u = r.request().url(); if (/^(file|blob|data):/.test(u) || /^http:\/\/127\.0\.0\.1:876\d\//.test(u)) return r.continue(); leaked.push(u); return r.abort(); });
-  ctx.on('page', p => { if (process.env.DEBUG) p.on('console', m => console.error('   [' + m.type() + '] ' + m.text().slice(0, 240))); p.on('pageerror', e => errs.push(e.message.slice(0, 200))); p.on('console', m => { if (m.type() === 'error' && !/SecurityError|Failed to load resource: net::ERR_FAILED/.test(m.text())) errs.push('console: ' + m.text().slice(0, 200)); }); });
+  ctx.on('page', p => { if (process.env.DEBUG) p.on('console', m => console.error('   [' + m.type() + '] ' + m.text().slice(0, 240))); p.on('pageerror', e => errs.push(e.message.slice(0, 200))); p.on('console', m => { if (m.type() === 'error' && !/SecurityError|Failed to load resource: net::ERR_FAILED|using emscripten GL emulation/.test(m.text())) errs.push('console: ' + m.text().slice(0, 200)); }); });
   const v = await ctx.newPage(); await v.goto(APP); await v.click('#nexusVerterBtn'); await v.setInputFiles('#zipPicker', src);
   await v.waitForFunction(() => !document.getElementById('entry').disabled, null, { timeout: 60000 });
   const [dl] = await Promise.all([v.waitForEvent('download', { timeout: 600000 }), v.click('#convert')]);

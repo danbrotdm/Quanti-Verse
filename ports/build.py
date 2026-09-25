@@ -77,6 +77,21 @@ def build(g, src):
              "Threads_FOUND": "TRUE", "THREADS_PREFER_PTHREAD_FLAG": "ON", "CMAKE_BUILD_TYPE": "Release"}
     env["QV_CMAKE"] = " ".join(f"-D{k}={v}" for k, v in hints.items())
     env["SYSROOT"] = sysroot
+    # pkg-config files for Emscripten's SDL add-on ports and the shared GL libraries, found by
+    # emconfigure through EM_PKG_CONFIG_PATH (the sysroot only ships sdl2.pc and a few others).
+    pc = os.path.join(WORK, "pkgconfig")
+    os.makedirs(pc, exist_ok=True)
+    deps = env["DEPS"]
+    for name, cflags, libs in [
+        ("SDL2_mixer", "-sUSE_SDL_MIXER=2", "-sUSE_SDL_MIXER=2"), ("SDL2_image", "-sUSE_SDL_IMAGE=2", "-sUSE_SDL_IMAGE=2"),
+        ("SDL2_ttf", "-sUSE_SDL_TTF=2", "-sUSE_SDL_TTF=2"), ("SDL2_net", "-sUSE_SDL_NET=2", "-sUSE_SDL_NET=2"),
+        ("SDL2_gfx", "-sUSE_SDL_GFX=2", "-sUSE_SDL_GFX=2"), ("libpng", "-sUSE_LIBPNG", "-sUSE_LIBPNG"),
+        ("openal", "", "-lopenal"), ("gl", f"-I{deps}/gl4es/include", f"{deps}/gl4es/lib/libGL.a -sFULL_ES2"),
+        ("glu", f"-I{deps}/glu/include", f"{deps}/glu/lib/libGLU.a -sDEFAULT_TO_CXX")]:   # GLU has C++ (NURBS) inside
+        open(os.path.join(pc, name + ".pc"), "w").write(
+            f"Name: {name}\nDescription: Emscripten\nVersion: 99\nRequires: sdl2\nCflags: {cflags}\nLibs: {libs}\n")
+    env["EM_PKG_CONFIG_PATH"] = pc
+    env["PKG_CONFIG_PATH"] = pc
     recipe = os.path.join(HERE, "recipes", g["id"] + ".sh")
     log = open(os.path.join(WORK, f"build-{g['id']}.log"), "w")
     r = run(["bash", "-e", "-o", "pipefail", recipe], cwd=src, env=env, stdout=log, stderr=subprocess.STDOUT)
