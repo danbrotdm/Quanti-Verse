@@ -37,6 +37,27 @@
   "sizeMB": 23.5,
   "status": "ok"
  },
+ "astromenace": {
+  "bundle": "library/AstroMenace.bootable.zip",
+  "check": {
+   "bundleMB": 60.8,
+   "colorsOverTime": [
+    3112,
+    8831,
+    9255,
+    9568,
+    9036,
+    10030
+   ],
+   "errors": [],
+   "label": "AstroMenace",
+   "leaked": [],
+   "title": "AstroMenace",
+   "verterWarnings": []
+  },
+  "sizeMB": 60.8,
+  "status": "ok"
+ },
  "atomiks": {
   "bundle": "library/Atomiks.bootable.zip",
   "check": {

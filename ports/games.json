@@ -595,5 +595,23 @@
   "license": "Artistic Licence 1.0 (game and pak64)",
   "description": "Transport simulation: connect towns and industries with trains, trucks, ships and planes. Ships with the pak64 graphics set; sound effects only.",
   "check_seconds": 25
+ },
+ {
+  "id": "astromenace",
+  "title": "AstroMenace",
+  "repo": "https://github.com/midzer/astromenace",
+  "ref": "emscripten",
+  "developer": "Viewizard",
+  "year": 2007,
+  "genre": "Shooter",
+  "tags": [
+   "shoot-em-up",
+   "3d",
+   "space",
+   "arcade"
+  ],
+  "license": "GPL-3.0 (code); CC-BY-SA 4.0 and other free licences (data, see licenses/)",
+  "description": "Hardcore 3D space scroll-shooter with spaceship upgrades.",
+  "check_seconds": 20
  }
 ]
