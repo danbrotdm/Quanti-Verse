@@ -1,4 +1,23 @@
 {
+ "anarch": {
+  "bundle": "library/Anarch.bootable.zip",
+  "check": {
+   "bundleMB": 0.3,
+   "colorsOverTime": [
+    32,
+    32,
+    32,
+    32
+   ],
+   "errors": [],
+   "label": "Anarch",
+   "leaked": [],
+   "title": "Anarch",
+   "verterWarnings": []
+  },
+  "sizeMB": 0.3,
+  "status": "ok"
+ },
  "atomiks": {
   "bundle": "library/Atomiks.bootable.zip",
   "check": {
@@ -161,6 +180,46 @@
   "sizeMB": 6.6,
   "status": "ok"
  },
+ "freedoom1": {
+  "bundle": "library/Freedoom_Phase_1.bootable.zip",
+  "check": {
+   "bundleMB": 10.7,
+   "colorsOverTime": [
+    977,
+    1174,
+    1071,
+    1243,
+    900
+   ],
+   "errors": [],
+   "label": "Freedoom_Phase_1",
+   "leaked": [],
+   "title": "Freedoom: Phase 1 - Chocolate Doom 3.1.1",
+   "verterWarnings": []
+  },
+  "sizeMB": 10.7,
+  "status": "ok"
+ },
+ "freedoom2": {
+  "bundle": "library/Freedoom_Phase_2.bootable.zip",
+  "check": {
+   "bundleMB": 11.3,
+   "colorsOverTime": [
+    978,
+    1080,
+    1047,
+    772,
+    839
+   ],
+   "errors": [],
+   "label": "Freedoom_Phase_2",
+   "leaked": [],
+   "title": "Freedoom: Phase 2 - Chocolate Doom 3.1.1",
+   "verterWarnings": []
+  },
+  "sizeMB": 11.3,
+  "status": "ok"
+ },
  "freegemas": {
   "bundle": "library/Freegemas.bootable.zip",
   "check": {
@@ -235,6 +294,25 @@
    "verterWarnings": []
   },
   "sizeMB": 67.6,
+  "status": "ok"
+ },
+ "jumpnbump": {
+  "bundle": "library/Jump_n_Bump.bootable.zip",
+  "check": {
+   "bundleMB": 0.8,
+   "colorsOverTime": [
+    86,
+    89,
+    89,
+    89
+   ],
+   "errors": [],
+   "label": "Jump_n_Bump",
+   "leaked": [],
+   "title": "Jump 'n Bump",
+   "verterWarnings": []
+  },
+  "sizeMB": 0.8,
   "status": "ok"
  },
  "lbreakouthd": {
@@ -330,6 +408,25 @@
    "verterWarnings": []
   },
   "sizeMB": 4.4,
+  "status": "ok"
+ },
+ "sopwith": {
+  "bundle": "library/SDL_Sopwith.bootable.zip",
+  "check": {
+   "bundleMB": 0.4,
+   "colorsOverTime": [
+    4,
+    4,
+    4,
+    4
+   ],
+   "errors": [],
+   "label": "SDL_Sopwith",
+   "leaked": [],
+   "title": "SDL Sopwith 2.9.0",
+   "verterWarnings": []
+  },
+  "sizeMB": 0.4,
   "status": "ok"
  },
  "starfighter": {

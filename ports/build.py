@@ -62,6 +62,9 @@ def build(g, src):
     env["OUT"] = out
     env["QV_LINK"] = f"--shell-file {shell} -sENVIRONMENT=web -sALLOW_MEMORY_GROWTH=1"
     env["JOBS"] = str(os.cpu_count() or 2)
+    # Older ports guard their web code with #ifdef EMSCRIPTEN, a macro current Emscripten no longer
+    # defines (only __EMSCRIPTEN__); without it they busy-wait instead of yielding to the browser.
+    env["EMCC_CFLAGS"] = (env.get("EMCC_CFLAGS", "") + " -DEMSCRIPTEN=1").strip()
     env["PORTS"] = HERE                       # recipes call $PORTS/deps/<dep>.sh for shared libraries
     env["DEPS"] = os.path.join(WORK, "deps")
     # CMake find-modules do not know Emscripten's SDL ports: point them at the sysroot.
@@ -151,7 +154,7 @@ def main(ids):
             src = clone(g)
             web = build(g, src)
             info, bundle = convert_and_check(g, web)
-            ok = not info.get("crash") and not info.get("errors") and not info.get("leaked") and max(info.get("colorsOverTime") or [0]) > 16
+            ok = not info.get("crash") and not info.get("errors") and not info.get("leaked") and max(info.get("colorsOverTime") or [0]) >= 4   # CGA-era games use 4 colours
             dest = os.path.join(LIBRARY, folder_name(g["title"]) + ".bootable.zip")
             if ok:
                 add_metadata(g, bundle, dest)

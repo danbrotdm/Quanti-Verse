@@ -362,5 +362,85 @@
   ],
   "license": "GPL-3.0 (code), free art packs",
   "description": "A short, fast roguelike dungeon crawler with a pixel-art look."
+ },
+ {
+  "id": "freedoom1",
+  "title": "Freedoom: Phase 1",
+  "repo": "https://github.com/midzer/chocolate-doom",
+  "ref": "emscripten",
+  "developer": "Freedoom project (content), Chocolate Doom team (engine)",
+  "year": 2024,
+  "genre": "First-person shooter",
+  "tags": [
+   "fps",
+   "doom",
+   "freedoom"
+  ],
+  "license": "BSD-3-Clause (Freedoom data), GPL-2.0 (Chocolate Doom)",
+  "description": "Four episodes of free, original Doom-style levels, monsters and music, played on the faithful Chocolate Doom engine.",
+  "check_seconds": 15
+ },
+ {
+  "id": "freedoom2",
+  "title": "Freedoom: Phase 2",
+  "repo": "https://github.com/midzer/chocolate-doom",
+  "ref": "emscripten",
+  "developer": "Freedoom project (content), Chocolate Doom team (engine)",
+  "year": 2024,
+  "genre": "First-person shooter",
+  "tags": [
+   "fps",
+   "doom",
+   "freedoom"
+  ],
+  "license": "BSD-3-Clause (Freedoom data), GPL-2.0 (Chocolate Doom)",
+  "description": "A 32-level free megawad in the style of Doom II, played on the faithful Chocolate Doom engine.",
+  "check_seconds": 15
+ },
+ {
+  "id": "anarch",
+  "title": "Anarch",
+  "repo": "https://gitlab.com/drummyfish/anarch",
+  "developer": "drummyfish",
+  "year": 2020,
+  "genre": "First-person shooter",
+  "tags": [
+   "fps",
+   "retro",
+   "public-domain"
+  ],
+  "license": "CC0 1.0 (public domain, code and data)",
+  "description": "A small, completely public-domain Doom-like shooter with its own levels, art and sounds, written to run on anything."
+ },
+ {
+  "id": "sopwith",
+  "title": "SDL Sopwith",
+  "repo": "https://github.com/fragglet/sdl-sopwith",
+  "developer": "David L. Clark (original), Simon Howard (SDL port)",
+  "year": 1984,
+  "genre": "Arcade flight",
+  "tags": [
+   "arcade",
+   "classic",
+   "planes"
+  ],
+  "license": "GPL-2.0 (code and data)",
+  "description": "The classic 1984 side-scrolling biplane game: bomb the enemy's buildings and dogfight their planes."
+ },
+ {
+  "id": "jumpnbump",
+  "title": "Jump 'n Bump",
+  "repo": "https://github.com/midzer/jumpnbump",
+  "ref": "emscripten",
+  "developer": "Brainchild Design; SDL port by the Jump 'n Bump team",
+  "year": 1998,
+  "genre": "Party platformer",
+  "tags": [
+   "multiplayer",
+   "party",
+   "bunnies"
+  ],
+  "license": "GPL-2.0 (code and data)",
+  "description": "Cute bunnies jump on each other's heads in this frantic local-multiplayer platformer."
  }
 ]
