@@ -353,6 +353,25 @@
   "sizeMB": 19.4,
   "status": "ok"
  },
+ "nikwi": {
+  "bundle": "library/Nikwi_Deluxe.bootable.zip",
+  "check": {
+   "bundleMB": 0.9,
+   "colorsOverTime": [
+    2130,
+    120,
+    8251,
+    8261
+   ],
+   "errors": [],
+   "label": "Nikwi_Deluxe",
+   "leaked": [],
+   "title": "Nikwi",
+   "verterWarnings": []
+  },
+  "sizeMB": 0.9,
+  "status": "ok"
+ },
  "numptyphysics": {
   "bundle": "library/Numpty_Physics.bootable.zip",
   "check": {

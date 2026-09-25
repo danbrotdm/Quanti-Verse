@@ -442,5 +442,20 @@
   ],
   "license": "GPL-2.0 (code and data)",
   "description": "Cute bunnies jump on each other's heads in this frantic local-multiplayer platformer."
+ },
+ {
+  "id": "nikwi",
+  "title": "Nikwi Deluxe",
+  "repo": "https://github.com/midzer/nikwi",
+  "developer": "Kostas Michalopoulos (Bad Sector)",
+  "year": 2005,
+  "genre": "Platformer",
+  "tags": [
+   "platformer",
+   "2d",
+   "sdl"
+  ],
+  "license": "zlib licence (code); WTFPL (data)",
+  "description": "A colourful platformer: collect all the sweets in each level while avoiding the enemies."
  }
 ]
