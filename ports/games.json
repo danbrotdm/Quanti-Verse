@@ -491,5 +491,23 @@
   "license": "GPL-2.0 (code); CC-BY-SA 3.0 (data, per directory notes)",
   "description": "Physics platformer starring a ball of tar that can stick, slide and harden, using the free replacement data of the open-sourced Gish.",
   "check_seconds": 16
+ },
+ {
+  "id": "bombermaaan",
+  "title": "Bombermaaan",
+  "repo": "https://github.com/midzer/Bombermaaan",
+  "ref": "sdl2-emscripten",
+  "developer": "Thibaut Tollemer, Bernd Arnold, Jerome Bigot and contributors",
+  "year": 2008,
+  "genre": "Action",
+  "tags": [
+   "action",
+   "party",
+   "multiplayer",
+   "arena"
+  ],
+  "license": "GPL-3.0",
+  "description": "Classic arena bomber for up to five players on one keyboard or against the computer.",
+  "check_seconds": 14
  }
 ]
