@@ -543,5 +543,22 @@
   "license": "GPL-2.0 / Angband licence (code and data)",
   "description": "The classic Tolkien-themed roguelike: descend a hundred levels of Angband to defeat Morgoth.",
   "check_seconds": 14
+ },
+ {
+  "id": "neverball",
+  "title": "Neverball",
+  "repo": "https://github.com/Neverball/neverball",
+  "developer": "Robert Kooima and the Neverball team",
+  "year": 2003,
+  "genre": "Puzzle / Arcade",
+  "tags": [
+   "3d",
+   "physics",
+   "arcade",
+   "puzzle"
+  ],
+  "license": "GPL-2.0 (code and data)",
+  "description": "Tilt the floor to roll a ball through an obstacle course, collecting coins before time runs out. All level sets included.",
+  "check_seconds": 16
  }
 ]
