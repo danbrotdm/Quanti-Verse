@@ -526,5 +526,22 @@
   "license": "GPL-2.0",
   "description": "Two blobs, one ball: a head-to-head volleyball game for two players on one keyboard or against Lua bots.",
   "check_seconds": 14
+ },
+ {
+  "id": "angband",
+  "title": "Angband",
+  "repo": "https://github.com/angband/angband",
+  "developer": "The Angband development team",
+  "year": 1990,
+  "genre": "Roguelike",
+  "tags": [
+   "roguelike",
+   "rpg",
+   "dungeon",
+   "turn-based"
+  ],
+  "license": "GPL-2.0 / Angband licence (code and data)",
+  "description": "The classic Tolkien-themed roguelike: descend a hundred levels of Angband to defeat Morgoth.",
+  "check_seconds": 14
  }
 ]

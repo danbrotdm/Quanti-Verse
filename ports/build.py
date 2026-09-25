@@ -65,6 +65,7 @@ def build(g, src):
     # Older ports guard their web code with #ifdef EMSCRIPTEN, a macro current Emscripten no longer
     # defines (only __EMSCRIPTEN__); without it they busy-wait instead of yielding to the browser.
     env["EMCC_CFLAGS"] = (env.get("EMCC_CFLAGS", "") + " -DEMSCRIPTEN=1").strip()
+    env["QV_PERSIST_JS"] = os.path.join(HERE, "persist.js")   # see persist.js: keeps save folders in IndexedDB
     env["PORTS"] = HERE                       # recipes call $PORTS/deps/<dep>.sh for shared libraries
     env["DEPS"] = os.path.join(WORK, "deps")
     # CMake find-modules do not know Emscripten's SDL ports: point them at the sysroot.

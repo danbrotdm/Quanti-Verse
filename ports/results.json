@@ -18,6 +18,25 @@
   "sizeMB": 0.3,
   "status": "ok"
  },
+ "angband": {
+  "bundle": "library/Angband.bootable.zip",
+  "check": {
+   "bundleMB": 23.5,
+   "colorsOverTime": [
+    96,
+    96,
+    96,
+    96
+   ],
+   "errors": [],
+   "label": "Angband",
+   "leaked": [],
+   "title": "Angband",
+   "verterWarnings": []
+  },
+  "sizeMB": 23.5,
+  "status": "ok"
+ },
  "atomiks": {
   "bundle": "library/Atomiks.bootable.zip",
   "check": {
