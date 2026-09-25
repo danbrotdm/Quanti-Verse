@@ -1,0 +1,355 @@
+{
+ "atomiks": {
+  "bundle": "library/Atomiks.bootable.zip",
+  "check": {
+   "bundleMB": 1.1,
+   "colorsOverTime": [
+    26,
+    26,
+    270,
+    270
+   ],
+   "errors": [],
+   "label": "Atomiks",
+   "leaked": [],
+   "title": "Atomiks v1.0.4.1",
+   "verterWarnings": []
+  },
+  "sizeMB": 1.1,
+  "status": "ok"
+ },
+ "azimuth": {
+  "bundle": "library/Azimuth.bootable.zip",
+  "check": {
+   "bundleMB": 1.6,
+   "colorsOverTime": [
+    81,
+    575,
+    671,
+    563
+   ],
+   "errors": [],
+   "label": "Azimuth",
+   "leaked": [],
+   "title": "Azimuth (press Ctrl-F to run full-screen)",
+   "verterWarnings": []
+  },
+  "sizeMB": 1.6,
+  "status": "ok"
+ },
+ "breakhack": {
+  "error": "clone failed",
+  "status": "build-failed"
+ },
+ "brogue": {
+  "bundle": "library/Brogue_Community_Edition.bootable.zip",
+  "check": {
+   "bundleMB": 1.2,
+   "colorsOverTime": [
+    2481,
+    2499,
+    2488,
+    2480
+   ],
+   "errors": [],
+   "label": "Brogue_Community_Edition",
+   "leaked": [],
+   "title": "Brogue",
+   "verterWarnings": []
+  },
+  "sizeMB": 1.2,
+  "status": "ok"
+ },
+ "candycrisis": {
+  "bundle": "library/Candy_Crisis.bootable.zip",
+  "check": {
+   "bundleMB": 5.7,
+   "colorsOverTime": [
+    10448,
+    5326,
+    10999,
+    11024
+   ],
+   "errors": [],
+   "label": "Candy_Crisis",
+   "leaked": [],
+   "title": "Candy Crisis (source port v3.0.2)",
+   "verterWarnings": []
+  },
+  "sizeMB": 5.7,
+  "status": "ok"
+ },
+ "chromiumbsu": {
+  "error": "ing directory '/home/user/Quanti-Verse/ports/.work/src/chromiumbsu'\nCDPATH=\"${ZSH_VERSION+.}:\" && cd . && /bin/bash /home/user/Quanti-Verse/ports/.work/src/chromiumbsu/missing aclocal-1.15 -I m4 --install\n/home/user/Quanti-Verse/ports/.work/src/chromiumbsu/missing: line 81: aclocal-1.15: command not found\nWARNING: 'aclocal-1.15' is missing on your system.\n         You should only need it if you modified 'acinclude.m4' or\n         'configure.ac' or m4 files included by 'configure.ac'.\n         The 'aclocal' program is part of the GNU Automake package:\n         <http://www.gnu.org/software/automake>\n         It also requires GNU Autoconf, GNU m4 and Perl in order to run:\n         <http://www.gnu.org/software/autoconf>\n         <http://www.gnu.org/software/m4/>\n         <http://www.perl.org/>\nmake[1]: *** [Makefile:491: aclocal.m4] Error 127\nmake[1]: Leaving directory '/home/user/Quanti-Verse/ports/.work/src/chromiumbsu'\nmake: *** [Makefile:525: ../aclocal.m4] Error 2\nmake: Leaving directory '/home/user/Quanti-Verse/ports/.work/src/chromiumbsu/src'\nem++: error: src/*.o: No such file or directory (\"src/*.o\" was expected to be an input file, based on the commandline arguments provided)\n",
+  "status": "build-failed"
+ },
+ "cromagrally": {
+  "bundle": null,
+  "check": {
+   "bundleMB": 122.7,
+   "colorsOverTime": [
+    1,
+    1,
+    1,
+    1,
+    1,
+    1
+   ],
+   "errors": [],
+   "label": "Cro-Mag_Rally",
+   "leaked": [],
+   "title": "Cro-Mag Rally",
+   "verterWarnings": []
+  },
+  "sizeMB": null,
+  "status": "check-failed"
+ },
+ "cuyo": {
+  "error": "build failed:\nemmake: \"make -j4 -C src\" in \"/home/user/Quanti-Verse/ports/.work/src/cuyo\"\nmake: Entering directory '/home/user/Quanti-Verse/ports/.work/src/cuyo/src'\nmake: *** No targets specified and no makefile found.  Stop.\nmake: Leaving directory '/home/user/Quanti-Verse/ports/.work/src/cuyo/src'\nem++: error: src/*.o: No such file or directory (\"src/*.o\" was expected to be an input file, based on the commandline arguments provided)\n",
+  "status": "build-failed"
+ },
+ "dungeonrush": {
+  "bundle": "library/Dungeon_Rush.bootable.zip",
+  "check": {
+   "bundleMB": 9.8,
+   "colorsOverTime": [
+    57,
+    66,
+    19,
+    19
+   ],
+   "errors": [],
+   "label": "Dungeon_Rush",
+   "leaked": [],
+   "title": "Dungeon Rush v1.1(beta)",
+   "verterWarnings": []
+  },
+  "sizeMB": 9.8,
+  "status": "ok"
+ },
+ "emptyclip": {
+  "bundle": null,
+  "check": {
+   "bundleMB": 4.9,
+   "colorsOverTime": [
+    1,
+    1,
+    1,
+    1
+   ],
+   "errors": [],
+   "label": "Empty_Clip",
+   "leaked": [],
+   "title": "Empty Clip",
+   "verterWarnings": []
+  },
+  "sizeMB": null,
+  "status": "check-failed"
+ },
+ "freegemas": {
+  "bundle": "library/Freegemas.bootable.zip",
+  "check": {
+   "bundleMB": 4.3,
+   "colorsOverTime": [
+    6901,
+    6901,
+    4909,
+    4907
+   ],
+   "errors": [],
+   "label": "Freegemas",
+   "leaked": [],
+   "title": "Freegemas",
+   "verterWarnings": []
+  },
+  "sizeMB": 4.3,
+  "status": "ok"
+ },
+ "freesiege": {
+  "bundle": "library/FreeSiege.bootable.zip",
+  "check": {
+   "bundleMB": 15,
+   "colorsOverTime": [
+    2351,
+    4120,
+    2455,
+    2398
+   ],
+   "errors": [],
+   "label": "FreeSiege",
+   "leaked": [],
+   "title": "FreeSiege",
+   "verterWarnings": []
+  },
+  "sizeMB": 15.0,
+  "status": "ok"
+ },
+ "hannah": {
+  "bundle": "library/Help_Hannah_s_Horse.bootable.zip",
+  "check": {
+   "bundleMB": 4,
+   "colorsOverTime": [
+    639,
+    639,
+    421,
+    406
+   ],
+   "errors": [],
+   "label": "Help_Hannah_s_Horse",
+   "leaked": [],
+   "title": "Help Hannah's Horse",
+   "verterWarnings": []
+  },
+  "sizeMB": 4.0,
+  "status": "ok"
+ },
+ "haxima": {
+  "bundle": "library/Haxima.bootable.zip",
+  "check": {
+   "bundleMB": 67.6,
+   "colorsOverTime": [
+    736,
+    736,
+    52,
+    359
+   ],
+   "errors": [],
+   "label": "Haxima",
+   "leaked": [],
+   "title": "Nazghul",
+   "verterWarnings": []
+  },
+  "sizeMB": 67.6,
+  "status": "ok"
+ },
+ "lbreakouthd": {
+  "error": "build failed:\nemmake: \"make -j4\" in \"/home/user/Quanti-Verse/ports/.work/src/lbreakouthd\"\nmake: *** No targets specified and no makefile found.  Stop.\nem++: error: *.o: No such file or directory (\"*.o\" was expected to be an input file, based on the commandline arguments provided)\n",
+  "status": "build-failed"
+ },
+ "liri": {
+  "bundle": "library/Li-Ri.bootable.zip",
+  "check": {
+   "bundleMB": 19.4,
+   "colorsOverTime": [
+    9138,
+    9138,
+    9022,
+    9012
+   ],
+   "errors": [],
+   "label": "Li-Ri",
+   "leaked": [],
+   "title": "Li-ri V3.1.5",
+   "verterWarnings": []
+  },
+  "sizeMB": 19.4,
+  "status": "ok"
+ },
+ "numptyphysics": {
+  "error": " src/I18n.o src/Interactions.o src/JetStream.o src/Levels.o src/Os.o src/Path.o src/Scene.o src/SceneEvent.o src/Script.o src/Stroke.o src/Ui.o platform/sdl2/OsSDL2.o platform/sdl2/SDL2Renderer.o platform/gl/GLRenderer.o external/thp/thp_format.o external/thp/thp_iterutils.o external/thp/thp_timestep.o external/tinyxml2/tinyxml2.o external/petals_log/petals_log.o external/Box2D/Source/Gen/float/libbox2d.a external/glaserl/libglaserl.a -L/tmp/claude-0/-home-user-Quanti-Verse/7e69a923-2a71-5b08-aef9-c0210ac3fd15/scratchpad/emsdk/upstream/emscripten/cache/sysroot/lib/wasm32-emscripten -L/tmp/claude-0/-home-user-Quanti-Verse/7e69a923-2a71-5b08-aef9-c0210ac3fd15/scratchpad/emsdk/upstream/emscripten/src/lib -lGL-getprocaddr -lal -lhtml5 -lstubs-debug -lnoexit -lc-debug -ldlmalloc-debug -lclang_rt.builtins -lc++-debug-noexcept -lc++abi-debug-noexcept -lsockets -mllvm -combiner-global-alias-analysis=false -mllvm -enable-emscripten-sjlj -mllvm -disable-lsr' failed (returned 1)\nmake: *** [makefile:40: numptyphysics] Error 1\nem++: error: external/stb_loader/*.o: No such file or directory (\"external/stb_loader/*.o\" was expected to be an input file, based on the commandline arguments provided)\n",
+  "status": "build-failed"
+ },
+ "powermanga": {
+  "bundle": "library/Powermanga.bootable.zip",
+  "check": {
+   "bundleMB": 10.6,
+   "colorsOverTime": [
+    64,
+    28,
+    17,
+    14
+   ],
+   "errors": [],
+   "label": "Powermanga",
+   "leaked": [],
+   "title": "Powermanga 0.94.0 2015-09-09 by TLK Games (SDL)",
+   "verterWarnings": []
+  },
+  "sizeMB": 10.6,
+  "status": "ok"
+ },
+ "sdlball": {
+  "error": "-emscripten/libvorbis.a /tmp/claude-0/-home-user-Quanti-Verse/7e69a923-2a71-5b08-aef9-c0210ac3fd15/scratchpad/emsdk/upstream/emscripten/cache/sysroot/lib/wasm32-emscripten/libogg.a /tmp/claude-0/-home-user-Quanti-Verse/7e69a923-2a71-5b08-aef9-c0210ac3fd15/scratchpad/emsdk/upstream/emscripten/cache/sysroot/lib/wasm32-emscripten/libharfbuzz.a /tmp/claude-0/-home-user-Quanti-Verse/7e69a923-2a71-5b08-aef9-c0210ac3fd15/scratchpad/emsdk/upstream/emscripten/cache/sysroot/lib/wasm32-emscripten/libfreetype.a /tmp/claude-0/-home-user-Quanti-Verse/7e69a923-2a71-5b08-aef9-c0210ac3fd15/scratchpad/emsdk/upstream/emscripten/cache/sysroot/lib/wasm32-emscripten/libpng.a /tmp/claude-0/-home-user-Quanti-Verse/7e69a923-2a71-5b08-aef9-c0210ac3fd15/scratchpad/emsdk/upstream/emscripten/cache/sysroot/lib/wasm32-emscripten/libz.a /tmp/claude-0/-home-user-Quanti-Verse/7e69a923-2a71-5b08-aef9-c0210ac3fd15/scratchpad/emsdk/upstream/emscripten/cache/sysroot/lib/wasm32-emscripten/libjpeg.a -lal -lhtml5 -lstubs -lnoexit -lc -ldlmalloc -lclang_rt.builtins -lc++-noexcept -lc++abi-noexcept -lsockets -mllvm -combiner-global-alias-analysis=false -mllvm -enable-emscripten-sjlj -mllvm -disable-lsr' failed (returned 1)\n",
+  "status": "build-failed"
+ },
+ "starfighter": {
+  "error": "build failed:\nemmake: \"make -j4\" in \"/home/user/Quanti-Verse/ports/.work/src/starfighter\"\nmake  all-recursive\nmake[1]: Entering directory '/home/user/Quanti-Verse/ports/.work/src/starfighter'\nMaking all in gfx\nmake[2]: Entering directory '/home/user/Quanti-Verse/ports/.work/src/starfighter/gfx'\nmake[2]: Nothing to be done for 'all'.\nmake[2]: Leaving directory '/home/user/Quanti-Verse/ports/.work/src/starfighter/gfx'\nMaking all in locale\nmake[2]: Entering directory '/home/user/Quanti-Verse/ports/.work/src/starfighter/locale'\nmake[2]: *** No rule to make target 'en/LC_MESSAGES/pr-starfighter.mo', needed by 'all-am'.  Stop.\nmake[2]: Leaving directory '/home/user/Quanti-Verse/ports/.work/src/starfighter/locale'\nmake[1]: *** [Makefile:460: all-recursive] Error 1\nmake[1]: Leaving directory '/home/user/Quanti-Verse/ports/.work/src/starfighter'\nmake: *** [Makefile:356: all] Error 2\nemcc: error: src/*.o: No such file or directory (\"src/*.o\" was expected to be an input file, based on the commandline arguments provided)\n",
+  "status": "build-failed"
+ },
+ "vectoroids": {
+  "bundle": "library/Vectoroids.bootable.zip",
+  "check": {
+   "bundleMB": 0.9,
+   "colorsOverTime": [
+    14,
+    14,
+    6350,
+    6363
+   ],
+   "errors": [],
+   "label": "Vectoroids",
+   "leaked": [],
+   "title": "Vectoroids",
+   "verterWarnings": []
+  },
+  "sizeMB": 0.9,
+  "status": "ok"
+ },
+ "violetland": {
+  "bundle": null,
+  "check": {
+   "bundleMB": 9,
+   "colorsOverTime": [
+    1,
+    1,
+    1,
+    1
+   ],
+   "errors": [],
+   "label": "Violetland",
+   "leaked": [],
+   "title": "Violetland",
+   "verterWarnings": []
+  },
+  "sizeMB": null,
+  "status": "check-failed"
+ },
+ "watercloset": {
+  "bundle": "library/Water_Closet.bootable.zip",
+  "check": {
+   "bundleMB": 8.4,
+   "colorsOverTime": [
+    2599,
+    2601,
+    2603,
+    2605
+   ],
+   "errors": [],
+   "label": "Water_Closet",
+   "leaked": [],
+   "title": "Water Closet",
+   "verterWarnings": []
+  },
+  "sizeMB": 8.4,
+  "status": "ok"
+ },
+ "xgalaga": {
+  "bundle": "library/XGalaga.bootable.zip",
+  "check": {
+   "bundleMB": 1.4,
+   "colorsOverTime": [
+    349,
+    342,
+    39,
+    41
+   ],
+   "errors": [],
+   "label": "XGalaga",
+   "leaked": [],
+   "title": "Xgalaga SDL",
+   "verterWarnings": []
+  },
+  "sizeMB": 1.4,
+  "status": "ok"
+ }
+}

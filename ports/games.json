@@ -1,0 +1,366 @@
+[
+ {
+  "id": "vectoroids",
+  "title": "Vectoroids",
+  "repo": "https://github.com/midzer/vectoroids",
+  "ref": "emscripten",
+  "developer": "Bill Kendrick (New Breed Software)",
+  "year": 2002,
+  "genre": "Arcade shooter",
+  "tags": [
+   "arcade",
+   "asteroids",
+   "sdl"
+  ],
+  "license": "GPL-2.0 (code and data)",
+  "description": "An Asteroids-style arcade shooter with vector graphics over a photo of Jupiter."
+ },
+ {
+  "id": "atomiks",
+  "title": "Atomiks",
+  "repo": "https://github.com/midzer/atomiks",
+  "ref": "emscripten",
+  "developer": "Mateusz Viste",
+  "year": 2013,
+  "genre": "Puzzle",
+  "tags": [
+   "puzzle",
+   "atomix"
+  ],
+  "license": "GPL-3.0 (code and data)",
+  "description": "A remake of the classic Atomix: slide atoms around a maze to build molecules."
+ },
+ {
+  "id": "brogue",
+  "title": "Brogue Community Edition",
+  "repo": "https://github.com/midzer/BrogueCE",
+  "ref": "emscripten",
+  "developer": "Brian Walker, Brogue CE team",
+  "year": 2009,
+  "genre": "Roguelike",
+  "tags": [
+   "roguelike",
+   "dungeon"
+  ],
+  "license": "AGPL-3.0 (code and data)",
+  "description": "A streamlined, beautifully rendered roguelike: descend 26 levels to retrieve the Amulet of Yendor."
+ },
+ {
+  "id": "freegemas",
+  "title": "Freegemas",
+  "repo": "https://github.com/midzer/freegemas",
+  "ref": "emscripten",
+  "developer": "José Tomás Tocino",
+  "year": 2010,
+  "genre": "Puzzle",
+  "tags": [
+   "puzzle",
+   "match-3"
+  ],
+  "license": "GPL-2.0 (code), GPL/CC art",
+  "description": "An open source Bejeweled-style match-three game."
+ },
+ {
+  "id": "dungeonrush",
+  "title": "Dungeon Rush",
+  "repo": "https://github.com/midzer/DungeonRush",
+  "ref": "emscripten",
+  "developer": "Rapiz",
+  "year": 2019,
+  "genre": "Action",
+  "tags": [
+   "action",
+   "snake",
+   "roguelike"
+  ],
+  "license": "GPL-3.0 (code), free art packs",
+  "description": "Snake meets dungeon crawler: lead a growing line of heroes through waves of monsters."
+ },
+ {
+  "id": "powermanga",
+  "title": "Powermanga",
+  "repo": "https://github.com/midzer/Powermanga",
+  "ref": "emscripten",
+  "developer": "TLK Games",
+  "year": 1999,
+  "genre": "Shoot 'em up",
+  "tags": [
+   "shmup",
+   "arcade"
+  ],
+  "license": "GPL-3.0 (code and data)",
+  "description": "A vertically scrolling shoot 'em up with 41 levels and a huge array of enemies."
+ },
+ {
+  "id": "azimuth",
+  "title": "Azimuth",
+  "repo": "https://github.com/midzer/azimuth",
+  "ref": "emscripten",
+  "developer": "Matthew D. Steele",
+  "year": 2012,
+  "genre": "Action-adventure",
+  "tags": [
+   "metroidvania",
+   "exploration"
+  ],
+  "license": "GPL-3.0 (code and data)",
+  "description": "A metroidvania in space: pilot a small ship through a vast, hand-drawn vector world to find out what happened to Zenith Station."
+ },
+ {
+  "id": "candycrisis",
+  "title": "Candy Crisis",
+  "repo": "https://github.com/midzer/CandyCrisis",
+  "ref": "emscripten",
+  "developer": "John Stiles",
+  "year": 1997,
+  "genre": "Puzzle",
+  "tags": [
+   "puzzle",
+   "puyo"
+  ],
+  "license": "GPL-2.0 (code and data)",
+  "description": "A Puyo Puyo-style falling-candy puzzle game, open sourced by its author."
+ },
+ {
+  "id": "chromiumbsu",
+  "title": "Chromium B.S.U.",
+  "repo": "https://github.com/midzer/chromium-bsu",
+  "ref": "emscripten",
+  "developer": "Mark B. Allan",
+  "year": 2000,
+  "genre": "Shoot 'em up",
+  "tags": [
+   "shmup",
+   "arcade"
+  ],
+  "license": "Clarified Artistic License (code and data)",
+  "description": "A fast-paced arcade top-scrolling space shooter."
+ },
+ {
+  "id": "cuyo",
+  "title": "Cuyo",
+  "repo": "https://github.com/midzer/cuyo",
+  "ref": "emscripten",
+  "developer": "Mark Weyer, Immanuel Halupczok",
+  "year": 2002,
+  "genre": "Puzzle",
+  "tags": [
+   "puzzle",
+   "falling-blocks"
+  ],
+  "license": "GPL-2.0 (code and data)",
+  "description": "A falling-blocks puzzle game whose every level has its own rules and graphics."
+ },
+ {
+  "id": "freesiege",
+  "title": "FreeSiege",
+  "repo": "https://github.com/midzer/freesiege",
+  "ref": "emscripten",
+  "developer": "FreeSiege team",
+  "year": 2007,
+  "genre": "Puzzle strategy",
+  "tags": [
+   "puzzle",
+   "strategy",
+   "two-player"
+  ],
+  "license": "GPL-2.0 (code and data)",
+  "description": "Combine blocks into siege units and send them against your opponent's castle."
+ },
+ {
+  "id": "hannah",
+  "title": "Help Hannah's Horse",
+  "repo": "https://github.com/midzer/hannah",
+  "ref": "emscripten",
+  "year": 2004,
+  "genre": "Maze",
+  "tags": [
+   "maze",
+   "pac-man-like",
+   "kids"
+  ],
+  "license": "GPL-2.0 (code and data)",
+  "description": "Guide Hannah through mazes to collect food for her horse while avoiding ghosts."
+ },
+ {
+  "id": "lbreakouthd",
+  "title": "LBreakoutHD",
+  "repo": "https://github.com/midzer/lbreakouthd",
+  "ref": "emscripten",
+  "developer": "Michael Speck",
+  "year": 2018,
+  "genre": "Breakout",
+  "tags": [
+   "breakout",
+   "arcade"
+  ],
+  "license": "GPL-3.0 (code and data)",
+  "description": "A scalable HD remake of LBreakout2 with hundreds of levels and power-ups."
+ },
+ {
+  "id": "liri",
+  "title": "Li-Ri",
+  "repo": "https://github.com/midzer/Li-Ri",
+  "ref": "emscripten",
+  "developer": "Dominique Roux-Serret",
+  "year": 2005,
+  "genre": "Puzzle",
+  "tags": [
+   "puzzle",
+   "trains"
+  ],
+  "license": "GPL-2.0 (code), free music",
+  "description": "Drive a toy train round the tracks, collecting all the carriages without crashing."
+ },
+ {
+  "id": "numptyphysics",
+  "title": "Numpty Physics",
+  "repo": "https://github.com/midzer/numptyphysics",
+  "ref": "emscripten",
+  "developer": "Tim Edmonds, Thomas Perl",
+  "year": 2008,
+  "genre": "Physics puzzle",
+  "tags": [
+   "physics",
+   "drawing",
+   "puzzle"
+  ],
+  "license": "GPL-3.0 (code and data)",
+  "description": "Draw shapes that come alive under physics to get the red ball to the star."
+ },
+ {
+  "id": "sdlball",
+  "title": "SDL-Ball",
+  "repo": "https://github.com/midzer/sdl-ball",
+  "ref": "emscripten",
+  "developer": "Jimmy Christensen",
+  "year": 2008,
+  "genre": "Breakout",
+  "tags": [
+   "breakout",
+   "arcade"
+  ],
+  "license": "GPL-3.0 (code and data)",
+  "description": "A colourful Breakout clone with power-ups, themes and a level editor."
+ },
+ {
+  "id": "starfighter",
+  "title": "Project: Starfighter",
+  "repo": "https://github.com/midzer/starfighter",
+  "ref": "emscripten",
+  "developer": "Parallel Realities, Julie Marchant",
+  "year": 2003,
+  "genre": "Shoot 'em up",
+  "tags": [
+   "shmup",
+   "story"
+  ],
+  "license": "GPL-3.0 (code), free art and music (see LICENSES)",
+  "description": "A side-scrolling space shooter with a campaign, upgrades and a story."
+ },
+ {
+  "id": "violetland",
+  "title": "Violetland",
+  "repo": "https://github.com/midzer/violetland",
+  "ref": "emscripten",
+  "developer": "Violetland team",
+  "year": 2008,
+  "genre": "Top-down shooter",
+  "tags": [
+   "shooter",
+   "survival"
+  ],
+  "license": "GPL-3.0 (code), CC-BY-SA 3.0 (assets)",
+  "description": "Survive endless waves of monsters in this top-down shooter with RPG elements."
+ },
+ {
+  "id": "watercloset",
+  "title": "Water Closet",
+  "repo": "https://github.com/midzer/waterCloset",
+  "ref": "emscripten",
+  "year": 2020,
+  "genre": "Platformer",
+  "tags": [
+   "platformer",
+   "puzzle"
+  ],
+  "license": "GPL-3.0 (code), see LICENSE for assets",
+  "description": "A puzzle platformer about plumbing: guide the water where it needs to go."
+ },
+ {
+  "id": "xgalaga",
+  "title": "XGalaga",
+  "repo": "https://github.com/midzer/xgalaga-sdl",
+  "ref": "emscripten",
+  "developer": "Joe Rumsey, Hans de Goede",
+  "year": 1995,
+  "genre": "Arcade shooter",
+  "tags": [
+   "arcade",
+   "galaga-like"
+  ],
+  "license": "GPL-2.0 (code and data)",
+  "description": "A Galaga-style arcade shooter."
+ },
+ {
+  "id": "haxima",
+  "title": "Haxima",
+  "repo": "https://github.com/midzer/nazghul",
+  "ref": "emscripten",
+  "developer": "Gordon McNutt",
+  "year": 2004,
+  "genre": "RPG",
+  "tags": [
+   "rpg",
+   "ultima-like"
+  ],
+  "license": "GPL-2.0 (engine and game)",
+  "description": "An Ultima-style role-playing game built on the Nazghul engine."
+ },
+ {
+  "id": "cromagrally",
+  "title": "Cro-Mag Rally",
+  "repo": "https://github.com/midzer/CroMagRally",
+  "ref": "emscripten",
+  "developer": "Pangea Software; port by Iliyas Jorio",
+  "year": 2000,
+  "genre": "Racing",
+  "tags": [
+   "racing",
+   "kart"
+  ],
+  "license": "CC BY-NC-SA 4.0 (non-commercial)",
+  "description": "Prehistoric kart racing through Stone, Bronze and Iron Age tracks.",
+  "check_seconds": 18
+ },
+ {
+  "id": "emptyclip",
+  "title": "Empty Clip",
+  "repo": "https://github.com/midzer/empty-clip",
+  "ref": "emscripten",
+  "developer": "Alan Witkowski",
+  "year": 2014,
+  "genre": "Action RPG",
+  "tags": [
+   "shooter",
+   "rpg"
+  ],
+  "license": "GPL-3.0 (code), CC-BY-SA (art and sound)",
+  "description": "A top-down sci-fi action RPG."
+ },
+ {
+  "id": "breakhack",
+  "title": "BreakHack",
+  "repo": "https://github.com/midzer/breakhack",
+  "ref": "emscripten",
+  "developer": "Linus Probert",
+  "year": 2018,
+  "genre": "Roguelike",
+  "tags": [
+   "roguelike",
+   "dungeon"
+  ],
+  "license": "GPL-3.0 (code), free art packs",
+  "description": "A short, fast roguelike dungeon crawler with a pixel-art look."
+ }
+]

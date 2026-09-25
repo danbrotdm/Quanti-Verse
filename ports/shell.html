@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>{{{ QV_TITLE }}}</title>
+<style>
+html,body{margin:0;height:100%;background:#000;overflow:hidden}
+#canvas{position:absolute;inset:0;margin:auto;display:block;outline:none;image-rendering:pixelated}
+#status{position:absolute;inset:0;display:grid;place-items:center;color:#35ff6b;font:14px/1.4 ui-monospace,Menlo,Consolas,monospace;pointer-events:none}
+</style>
+</head>
+<body>
+<canvas id="canvas" tabindex="-1" oncontextmenu="event.preventDefault()"></canvas>
+<div id="status">LOADING</div>
+<script>
+  // Quantiverse port shell: black full-window page, canvas scaled to fit (aspect kept).
+  var Module = {
+    canvas: document.getElementById("canvas"),
+    print: console.log.bind(console),
+    printErr: console.warn.bind(console),
+    setStatus: function (t) {
+      var s = document.getElementById("status");
+      if (s) { s.textContent = t ? String(t).toUpperCase() : ""; s.style.display = t ? "grid" : "none"; }
+    }
+  };
+  (function () {
+    var c = Module.canvas;
+    function fit() {
+      if (!c.width || !c.height) return;
+      var k = Math.min(window.innerWidth / c.width, window.innerHeight / c.height);
+      c.style.width = Math.floor(c.width * k) + "px";
+      c.style.height = Math.floor(c.height * k) + "px";
+    }
+    window.addEventListener("resize", fit);
+    setInterval(fit, 300);
+    window.addEventListener("pointerdown", function () { c.focus(); });
+  })();
+</script>
+{{{ SCRIPT }}}
+</body>
+</html>
