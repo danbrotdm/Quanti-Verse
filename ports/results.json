@@ -296,10 +296,10 @@
   "check": {
    "bundleMB": 9.8,
    "colorsOverTime": [
-    57,
-    66,
-    19,
-    19
+    42,
+    41,
+    14,
+    14
    ],
    "errors": [],
    "label": "Dungeon_Rush",
@@ -335,10 +335,10 @@
    "bundleMB": 10.7,
    "colorsOverTime": [
     977,
-    1174,
-    1071,
-    1243,
-    900
+    1025,
+    1028,
+    1319,
+    1187
    ],
    "errors": [],
    "label": "Freedoom_Phase_1",
@@ -355,10 +355,10 @@
    "bundleMB": 11.3,
    "colorsOverTime": [
     978,
-    1080,
-    1047,
-    772,
-    839
+    978,
+    1108,
+    769,
+    793
    ],
    "errors": [],
    "label": "Freedoom_Phase_2",
@@ -375,9 +375,9 @@
    "bundleMB": 4.3,
    "colorsOverTime": [
     6901,
-    6901,
-    4909,
-    4907
+    69,
+    4833,
+    4831
    ],
    "errors": [],
    "label": "Freegemas",
@@ -393,11 +393,11 @@
   "check": {
    "bundleMB": 12.1,
    "colorsOverTime": [
-    42,
-    195,
-    195,
-    195,
-    195
+    2,
+    146,
+    146,
+    146,
+    146
    ],
    "errors": [],
    "label": "Freegish",
@@ -413,10 +413,10 @@
   "check": {
    "bundleMB": 15,
    "colorsOverTime": [
-    2351,
-    4120,
-    2455,
-    2398
+    2310,
+    3537,
+    2268,
+    2360
    ],
    "errors": [],
    "label": "FreeSiege",
@@ -434,8 +434,8 @@
    "colorsOverTime": [
     639,
     639,
-    421,
-    406
+    416,
+    434
    ],
    "errors": [],
    "label": "Help_Hannah_s_Horse",
@@ -451,8 +451,8 @@
   "check": {
    "bundleMB": 67.6,
    "colorsOverTime": [
-    736,
-    736,
+    2754,
+    731,
     52,
     359
    ],
@@ -470,7 +470,7 @@
   "check": {
    "bundleMB": 0.8,
    "colorsOverTime": [
-    86,
+    85,
     89,
     89,
     89
@@ -489,10 +489,10 @@
   "check": {
    "bundleMB": 15.6,
    "colorsOverTime": [
-    113,
-    113,
+    115,
+    115,
     178,
-    189
+    178
    ],
    "errors": [],
    "label": "LBreakoutHD",
@@ -508,10 +508,10 @@
   "check": {
    "bundleMB": 19.4,
    "colorsOverTime": [
-    9138,
-    9138,
-    9022,
-    9012
+    9143,
+    9147,
+    9017,
+    9014
    ],
    "errors": [],
    "label": "Li-Ri",
@@ -548,9 +548,9 @@
    "bundleMB": 0.9,
    "colorsOverTime": [
     2130,
-    120,
+    119,
     8251,
-    8261
+    8259
    ],
    "errors": [],
    "label": "Nikwi_Deluxe",
@@ -566,10 +566,10 @@
   "check": {
    "bundleMB": 2.2,
    "colorsOverTime": [
-    3425,
-    3434,
-    3437,
-    3435
+    3429,
+    3431,
+    3427,
+    3429
    ],
    "errors": [],
    "label": "Numpty_Physics",
@@ -608,8 +608,8 @@
   "check": {
    "bundleMB": 10.6,
    "colorsOverTime": [
-    64,
-    28,
+    86,
+    30,
     17,
     14
    ],
@@ -627,10 +627,10 @@
   "check": {
    "bundleMB": 4.4,
    "colorsOverTime": [
-    1303,
-    1263,
-    9048,
-    9076
+    1333,
+    8432,
+    8424,
+    8424
    ],
    "errors": [],
    "label": "SDL-Ball",
@@ -688,10 +688,10 @@
   "check": {
    "bundleMB": 36,
    "colorsOverTime": [
-    5018,
-    5021,
-    5009,
-    5045
+    4940,
+    4950,
+    5013,
+    4987
    ],
    "errors": [],
    "label": "Project_Starfighter",
@@ -709,8 +709,8 @@
    "colorsOverTime": [
     14,
     14,
-    6350,
-    6363
+    6356,
+    6353
    ],
    "errors": [],
    "label": "Vectoroids",
@@ -745,10 +745,10 @@
   "check": {
    "bundleMB": 8.4,
    "colorsOverTime": [
-    2599,
-    2601,
-    2603,
-    2605
+    2582,
+    2579,
+    2586,
+    2599
    ],
    "errors": [],
    "label": "Water_Closet",
@@ -764,9 +764,9 @@
   "check": {
    "bundleMB": 1.4,
    "colorsOverTime": [
-    349,
-    342,
-    39,
+    351,
+    29,
+    40,
     41
    ],
    "errors": [],
