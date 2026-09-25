@@ -98,6 +98,27 @@
   "sizeMB": 5.7,
   "status": "ok"
  },
+ "cdogs": {
+  "bundle": "library/C-Dogs_SDL.bootable.zip",
+  "check": {
+   "bundleMB": 33.1,
+   "colorsOverTime": [
+    18,
+    211,
+    212,
+    209,
+    198,
+    213
+   ],
+   "errors": [],
+   "label": "C-Dogs_SDL",
+   "leaked": [],
+   "title": "C-Dogs SDL v1.4.1",
+   "verterWarnings": []
+  },
+  "sizeMB": 33.1,
+  "status": "ok"
+ },
  "chromiumbsu": {
   "error": "build failed:\nchecking for QuesoGLC/glc.h... no\nchecking for glcGenContext in -lGLC... no\nchecking for glcGenContext in -lglc32... no\nchecking for ftgl >= 2.1.3... no\nchecking for sdl2... yes\nchecking for sdl >= 1.1.6... yes\nchecking for library containing glutMainLoop... none required\nchecking for GL/glut.h... yes\nchecking for compiling a minimal GLUT program... yes\nchecking for linking a minimal GLUT program... no\nchecking for openal... yes\nchecking for freealut... no\nchecking for SDL2_mixer... yes\nchecking for SDL_mixer... no\nchecking for SDL2_image... yes\nchecking for SDL_image... no\nchecking for GL/glpng.h... no\nchecking for glpng/glpng.h... no\nchecking for pngBind in -lglpng... no\nconfigure: error: cannot find GLC or FTGL >= 2.1.3 (text renderer)\n",
   "status": "build-failed"

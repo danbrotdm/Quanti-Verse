@@ -457,5 +457,23 @@
   ],
   "license": "zlib licence (code); WTFPL (data)",
   "description": "A colourful platformer: collect all the sweets in each level while avoiding the enemies."
+ },
+ {
+  "id": "cdogs",
+  "title": "C-Dogs SDL",
+  "repo": "https://github.com/midzer/cdogs-sdl",
+  "developer": "Cong Xu and contributors (original by Ronny Wester)",
+  "year": 2013,
+  "genre": "Shooter",
+  "tags": [
+   "action",
+   "top-down",
+   "shooter",
+   "co-op",
+   "sdl2"
+  ],
+  "license": "GPL-2.0 / BSD-2-Clause (code); CC0, CC-BY, CC-BY-SA (data)",
+  "description": "Classic overhead run-and-gun: campaigns, co-op and deathmatch, remade from the 1997 DOS game.",
+  "check_seconds": 20
  }
 ]
