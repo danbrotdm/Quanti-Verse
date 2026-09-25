@@ -37,5 +37,15 @@ const APP = APP_FILE;
     return [...document.querySelectorAll('[role=alert]')].map(d => d.textContent)[0] || '';
   });
   ok(/locked by another tab/i.test(toast), 'a save database locked by another tab is reported: ' + toast.slice(0, 80));
+  // 3. A snapshot taken before the game has saved anything must not block later snapshots.
+  const e = await ctx.newPage(); await e.goto(APP);
+  const stored = await e.evaluate(async () => {
+    await window.__quantiSaves.begin({ title: 'Early Snapshot' });
+    await window.__quantiSaves.snapshot();            // nothing to save yet
+    localStorage.setItem('early_save', 'x');
+    await window.__quantiSaves.snapshot();
+    return window.__quantiSaves.status().stored;
+  });
+  ok(stored === true, 'an empty first snapshot does not block the next one');
   await b.close();
 })();

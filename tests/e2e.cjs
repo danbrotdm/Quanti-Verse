@@ -9,7 +9,7 @@ const APP = process.env.APP || APP_FILE;
   const leaked = [];
   await ctx.route('**/*', r => { const u = r.request().url(); if (/^(file|blob|data):/.test(u) || /^http:\/\/127\.0\.0\.1:876[0-9]\//.test(u)) return r.continue(); leaked.push(u); return r.abort(); });
   const errs = [];
-  const watch = (p, tag) => { p.on('pageerror', e => errs.push(tag + ' pageerror: ' + e.message)); p.on('console', m => { if (m.type() === 'error') errs.push(tag + ' console: ' + m.text().slice(0, 300)); }); };
+  const watch = (p, tag) => { if (process.env.DEBUG) p.on('console', m => console.log('   [' + tag + ' ' + m.type() + '] ' + m.text().slice(0, 300))); p.on('pageerror', e => errs.push(tag + ' pageerror: ' + e.message)); p.on('console', m => { if (m.type() === 'error') errs.push(tag + ' console: ' + m.text().slice(0, 300)); }); };
 
   // 1. Convert with QuantiVerter.
   const v = await ctx.newPage(); watch(v, 'verter');

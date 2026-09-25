@@ -20,6 +20,8 @@ e2e dosgame.zip dos "400,300,170,0,0"; e2e webgame.zip web "400,300,255,136,0"
 echo "== engines: Emscripten classic + modularized"
 node e2e.cjs engines/probe-classic.zip "$O" probe-classic "400,300,0,255,0" | grep PIXELS; grep -q 'PIXELS PASS' <(node e2e.cjs engines/probe-modular.zip "$O" probe-modular "400,300,0,255,0") || fail=1
 echo "== engines: multithreaded (cross-origin isolation)"; check node threads.cjs engines/probe-threads.zip engines/probe-classic.zip
+echo "== engines: LÖVE (love.js) single-threaded, saves via IDBFS";  check node love.cjs engines/love-compat.zip
+echo "== engines: LÖVE (love.js) multithreaded over http";           APP=http://127.0.0.1:8766/index.html check node love.cjs engines/love-release.zip
 for t in web dos flash disk; do echo "== saves: $t"; check node saves.cjs $t; done
 echo "== save hardening"; check node harden.cjs
 echo "== bulk actions";   check node bulk.cjs "$O"
@@ -31,7 +33,7 @@ if [ "${BIG:-0}" = 1 ]; then
 import zipfile,os
 with zipfile.ZipFile('$W/big.bootable.zip','w') as z:
   s=zipfile.ZipFile('$O/probe-classic.bootable.zip')
-  for i in s.infolist(): z.writestr(i.filename.replace('bundle/','big/',1), s.read(i), compress_type=i.compress_type)
+  for i in s.infolist(): z.writestr('big/'+i.filename.split('/',1)[1], s.read(i), compress_type=i.compress_type)
   with z.open('big/assets/level-data.pak','w',force_zip64=True) as f:
     c=os.urandom(1<<20)
     for _ in range(1536): f.write(c)"

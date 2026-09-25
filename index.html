@@ -1766,25 +1766,20 @@ https://github.com/nodeca/pako/blob/main/LICENSE
       return;
     }
 
-    const topDirs = [...new Set(names
-      .filter(n => n.endsWith("/"))
-      .map(n => n.split("/")[0])
-      .filter(Boolean))];
-
-    if (topDirs.length === 1) {
-      topFolder = topDirs[0];
-    } else {
-      const filePaths = names.filter(n => !n.endsWith("/"));
-      const firstParts = [...new Set(filePaths.map(n => n.split("/")[0]).filter(Boolean))];
-      topFolder = firstParts.length === 1 && filePaths.some(n => n.includes("/"))
-        ? firstParts[0]
-        : "bundle";
-    }
+    // The zip has a root folder only if every file sits inside the same top-level folder. A zip
+    // with files at its top level plus one sub-folder (index.html + theme/) has none: its name
+    // then comes from the zip file itself.
+    const filePaths = names.filter(n => !n.endsWith("/"));
+    const firstParts = [...new Set(filePaths.map(n => n.split("/")[0]).filter(Boolean))];
+    topFolder = firstParts.length === 1 && filePaths.every(n => n.includes("/"))
+      ? firstParts[0]
+      : (f.name.replace(/\.(zip|jsdos)$/i, "").replace(/\.bootable$/i, "") || "bundle");
+    const rootless = !(firstParts.length === 1 && filePaths.every(n => n.includes("/")));
 
     sourceFiles = [];
     for (const name of names) {
       if (name.endsWith("/")) continue;
-      const rel = name.startsWith(topFolder + "/") ? name.slice(topFolder.length + 1) : name;
+      const rel = !rootless && name.startsWith(topFolder + "/") ? name.slice(topFolder.length + 1) : name;
       sourceFiles.push({
         rel,
         full: name,
@@ -2100,14 +2095,28 @@ https://github.com/nodeca/pako/blob/main/LICENSE
       link.remove();
     }
 
-    // Preserve script order exactly as it appears in the original HTML.
+    // Preserve script order exactly as it appears in the original HTML. Only real scripts are
+    // taken out: data blocks (JSON config, WebGL shaders, templates: <script type="x-shader/...">)
+    // stay in the page for the game to read, and ones in <head> move into the body so they survive.
+    // Every other attribute rides along (id, data-*, and inline handlers such as love.js's
+    // onload="applicationLoad(this)", which starts the game). integrity is dropped because the
+    // converter may rewrite a script's contents.
+    const isJsType = (t) => !t || t.toLowerCase() === "module" ||
+      /^(text|application)\/(x-)?(javascript|ecmascript|jscript|livescript)$/i.test(t);
+    const keepAttrs = (el) => [...el.attributes]
+      .filter(a => !["src", "type", "integrity"].includes(a.name.toLowerCase()))
+      .map(a => [a.name, a.value]);
     for (const s of [...doc.querySelectorAll("script")]) {
       const src = s.getAttribute("src");
       const type = (s.getAttribute("type") || "").trim();
+      if (!isJsType(type)) {
+        if (doc.head && doc.head.contains(s) && doc.body) doc.body.insertBefore(s, doc.body.firstChild);
+        continue;
+      }
       if (src) {
-        scripts.push({ src, type });
+        scripts.push({ src, type, attrs: keepAttrs(s) });
       } else if ((s.textContent || "").trim()) {
-        scripts.push({ inline: s.textContent || "", type });
+        scripts.push({ inline: s.textContent || "", type, attrs: keepAttrs(s) });
       }
       s.remove();
     }
@@ -2147,10 +2156,33 @@ https://github.com/nodeca/pako/blob/main/LICENSE
       const external0=(u)=>/^(?:https?:|ftp:|file:|data:|blob:|javascript:|mailto:|tel:|\\/\\/)/i.test(String(u||""));
     `);
     boot.push(`
-      const external=(u)=>String(u||"").indexOf(VORIGIN+"/")===0?false:external0(u);
+      const ENTRYDIR=ENTRY.slice(0,ENTRY.lastIndexOf("/")+1);
+      const PAGEDIR=location.href.replace(/[?#].*$/,"").replace(/[^\\/]*$/,"");
+      // Absolute URLs an engine builds from the page's own location (http://host/dir/x.worker.js,
+      // or a made-up blob:host/x.worker.js from a blob: script URL): the game believes it lives
+      // at ENTRY, so these point into the bundle.
+      const pageRel=(u)=>{
+        u=String(u||"");
+        let r=null;
+        if(PAGEDIR&&u.indexOf(PAGEDIR)===0)r=u.slice(PAGEDIR.length);
+        else{const m=/^blob:(?:[a-z-]+:\\/\\/[^\\/]+|null)\\/(.+)$/i.exec(u);if(m&&/\\.[a-z0-9]+$/i.test(m[1].split(/[?#]/)[0]))r=m[1];}
+        if(r===null)return null;
+        r=r.split("#")[0].split("?")[0];
+        try{r=decodeURIComponent(r);}catch(_){}
+        return r;
+      };
+      const external=(u)=>{
+        u=String(u||"");
+        if(u.indexOf(VORIGIN+"/")===0)return false;
+        const r=pageRel(u);
+        if(r!==null&&FILES.has(clean(ENTRYDIR+r)))return false;
+        return external0(u);
+      };
       const resolve=(base,ref)=>{
         ref=String(ref||"").trim();
         if(ref.indexOf(VORIGIN+"/")===0){try{return clean(decodeURIComponent(new URL(ref).pathname));}catch(_){return null;}}
+        const pr=pageRel(ref);
+        if(pr!==null){const p=clean(ENTRYDIR+pr);if(FILES.has(p))return p;}
         if(!ref||ref.startsWith("#")||external(ref))return null;
         ref=ref.split("#")[0].split("?")[0];
         if(!ref)return null;
@@ -2299,6 +2331,39 @@ https://github.com/nodeca/pako/blob/main/LICENSE
       };
     `);
 
+    // Worker shim. Emscripten threads (love.js, Godot up to 4.2, ...) start from a separate
+    // xyz.worker.js. new Worker() has to return at once but bundle files are read
+    // asynchronously, so a worker whose script is in the bundle starts from a tiny bootstrap
+    // that holds the game's first messages until the real script is imported, then replays
+    // them in order. importScripts() inside the worker is mapped to bundle files too.
+    boot.push(`
+      if(typeof Worker==="function"){
+        const NativeWorker=Worker;
+        const BOOT=URL.createObjectURL(new Blob([${JSON.stringify("(" + workerBootstrap.toString() + ")();")}],{type:"text/javascript"}));
+        let JSMAP=null;
+        const jsMap=async()=>{
+          if(JSMAP)return JSMAP;
+          const m={};
+          for(const f of FILES){
+            if(!/\\.m?js$/i.test(f))continue;
+            const u=await blobURL(f);
+            if(u){m[f]=u;m[VORIGIN+"/"+f]=u;m["*"+f.slice(f.lastIndexOf("/")+1)]=u;}
+          }
+          return JSMAP=m;
+        };
+        const QVWorker=function(url,opts){
+          const raw=typeof url==="string"?url:(url&&url.href)||String(url);
+          const p=!external(raw)?resolve(ENTRY,raw):null;
+          if(!p||!FILES.has(p)||(opts&&opts.type==="module"))return new NativeWorker(url,opts);
+          const w=new NativeWorker(BOOT,opts);
+          Promise.all([blobURL(p),jsMap()]).then(([u,map])=>w.postMessage({__qvWorker:true,url:u,map}),e=>console.error(e));
+          return w;
+        };
+        QVWorker.prototype=NativeWorker.prototype;
+        window.Worker=QVWorker;
+      }
+    `);
+
     // Rewrite resources already present in the HTML body before app scripts run.
     boot.push(`
       async function rewriteElement(el,attr){
@@ -2365,6 +2430,18 @@ https://github.com/nodeca/pako/blob/main/LICENSE
       }
     `);
 
+    boot.push(`
+      // A script element with the original's attributes. Waiting uses listeners, so the page's
+      // own onload/onerror attribute handlers still run.
+      function scriptEl(attrs){
+        const s=document.createElement("script");
+        for(const [n,v] of attrs){try{s.setAttribute(n,v);}catch(_){}}
+        return s;
+      }
+      function loaded(s){
+        return new Promise(resolve=>{s.addEventListener("load",resolve,{once:true});s.addEventListener("error",resolve,{once:true});});
+      }
+    `);
     boot.push(`await rewriteDOM();`);
     boot.push(`document.title=${JSON.stringify(title)};`);
 
@@ -2392,10 +2469,10 @@ https://github.com/nodeca/pako/blob/main/LICENSE
               {
                 const u=MODW[${k}];
                 if(u){
-                  const s=document.createElement("script");
+                  const s=scriptEl(${JSON.stringify(sc.attrs || [])});
                   s.type="module";s.src=u;
                   document.head.appendChild(s);
-                  await new Promise(resolve=>{s.onload=resolve;s.onerror=resolve;});
+                  await loaded(s);
                 }
               }
             `);
@@ -2407,11 +2484,11 @@ https://github.com/nodeca/pako/blob/main/LICENSE
                 const b=await blobFor(${JSON.stringify(p)});
                 if(b){
                   const u=URL.createObjectURL(b.slice(0,b.size,"text/javascript"));
-                  const s=document.createElement("script");
+                  const s=scriptEl(${JSON.stringify(sc.attrs || [])});
                   s.src=u;
                   document.head.appendChild(s);
-                  await new Promise(resolve=>{s.onload=resolve;s.onerror=resolve;});
-                  URL.revokeObjectURL(u);
+                  await loaded(s);
+                  // Kept alive: Emscripten thread workers load the main script by this URL.
                 }
               }
             `);
@@ -2421,10 +2498,10 @@ https://github.com/nodeca/pako/blob/main/LICENSE
           // should not stop the rest of the page from loading.
           boot.push(`
             {
-              const s=document.createElement("script");
+              const s=scriptEl(${JSON.stringify(sc.attrs || [])});
               s.src=${JSON.stringify(sc.src)};
               document.head.appendChild(s);
-              await new Promise(resolve=>{s.onload=resolve;s.onerror=resolve;});
+              await loaded(s);
             }
           `);
         } else {
@@ -2438,10 +2515,10 @@ https://github.com/nodeca/pako/blob/main/LICENSE
             {
               const u=MODW[${k}];
               if(u){
-                const s=document.createElement("script");
+                const s=scriptEl(${JSON.stringify(sc.attrs || [])});
                 s.type="module";s.src=u;
                 document.head.appendChild(s);
-                await new Promise(resolve=>{s.onload=resolve;s.onerror=resolve;});
+                await loaded(s);
               }
             }
           `);
@@ -2450,10 +2527,10 @@ https://github.com/nodeca/pako/blob/main/LICENSE
             {
               const code=${JSON.stringify(sc.inline)};
               const u=URL.createObjectURL(new Blob([code],{type:"text/javascript"}));
-              const s=document.createElement("script");
+              const s=scriptEl(${JSON.stringify(sc.attrs || [])});
               s.src=u;
               document.head.appendChild(s);
-              await new Promise(resolve=>{s.onload=resolve;s.onerror=resolve;});
+              await loaded(s);
               URL.revokeObjectURL(u);
             }
           `);
@@ -2470,6 +2547,37 @@ https://github.com/nodeca/pako/blob/main/LICENSE
     boot.push(`}catch(e){console.error(e);alert("Bundle error: "+(e&&e.message||e));}})();`);
 
     return {bodyHtml, bootJs: boot.join("\n"), warnings};
+  }
+
+  // Serialized into boot.js (see the worker shim): runs inside a Worker. Queues messages until
+  // the page sends the real script's blob URL, imports it, then replays the queue.
+  function workerBootstrap() {
+    var queue = [], started = false, map = {};
+    var nativeImport = self.importScripts;
+    self.importScripts = function () {
+      var args = Array.prototype.map.call(arguments, function (u) {
+        var s = String(u), name = s.split(/[?#]/)[0];
+        return map[s] || map[name] || map["*" + name.slice(name.lastIndexOf("/") + 1)] || u;
+      });
+      return nativeImport.apply(self, args);
+    };
+    function boot(e) {
+      var d = e.data;
+      if (!started && d && d.__qvWorker) {
+        started = true;
+        self.removeEventListener("message", boot);
+        map = d.map || {};
+        self.importScripts(d.url);
+        var q = queue;
+        queue = null;
+        for (var i = 0; i < q.length; i++) {
+          self.dispatchEvent(new MessageEvent("message", { data: q[i].data, ports: Array.prototype.slice.call(q[i].ports || []) }));
+        }
+        return;
+      }
+      if (!started) { queue.push(e); e.stopImmediatePropagation(); }
+    }
+    self.addEventListener("message", boot);
   }
 
   // ------------------------------------------------------------------
@@ -5382,7 +5490,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
   const OWN_DBS = new Set(["quantinexus-sorter", "quantiverter-webretro-cores", "quantiverse-pending", SAVE_DB]);
   const SKIP_DB = /cache/i;                    // UnityCache and friends: big, and re-creatable
   const OWN_KEY = /^(bl-theme|bf-compress|bf-ruffle|bf-dos|jsdos\.8\..*|webretro_settings_.*|RetroArch_settings_.*)$/;   // app/emulator settings, not saves
-  const DEBOUNCE_MS = 2000, MAX_WAIT_MS = 10000, SCAN_MS = 15000, OPEN_TIMEOUT_MS = 5000;
+  const DEBOUNCE_MS = 2000, MAX_WAIT_MS = 10000, SCAN_MS = 15000, OPEN_TIMEOUT_MS = 5000, FLUSH_MS = 5000;
 
   const nativeOpen = IDBFactory.prototype.open;
   const nativeSet = Storage.prototype.setItem, nativeGet = Storage.prototype.getItem;
@@ -5568,6 +5676,23 @@ https://github.com/nodeca/pako/blob/main/LICENSE
       };
       // Changes made by other tabs are theirs, not this game's.
       win.addEventListener("storage", (e) => { if (session && e.key) session.foreign.add(e.key); });
+
+      // Emscripten games keep their files in memory and copy them to IndexedDB (IDBFS) with
+      // FS.syncfs(). Many, love.js among them, only do that in a beforeunload handler, and a
+      // closing page does not wait for IndexedDB, so progress made since the game started can
+      // vanish. Handlers of that kind (their code calls syncfs) are remembered and also run
+      // every few seconds and whenever the tab is hidden. Other unload handlers are left alone.
+      const nAdd = win.addEventListener;
+      win.addEventListener = function (type, fn) {
+        try {
+          if (session && typeof fn === "function" && /^(beforeunload|unload|pagehide)$/.test(type) &&
+              /\bsyncfs\b/.test(Function.prototype.toString.call(fn))) {
+            session.flushers.add(fn);
+            startFlushing();
+          }
+        } catch (_) {}
+        return nAdd.apply(this, arguments);
+      };
     } catch (e) { console.warn("QuantiSaves: localStorage hook failed", e); }
 
     try {
@@ -5718,6 +5843,24 @@ https://github.com/nodeca/pako/blob/main/LICENSE
     }
   }
 
+  let flushTimer = null;
+  function runFlushers() {
+    if (!session || !session.flushers.size) return false;
+    for (const fn of session.flushers) {
+      try { fn.call(window, new Event("beforeunload")); } catch (e) { console.warn("QuantiSaves: a save flush failed", e); }
+    }
+    return true;
+  }
+  function startFlushing() {
+    if (flushTimer) return;
+    flushTimer = setInterval(runFlushers, FLUSH_MS);
+  }
+  // Flush the game's own file system, give IndexedDB a moment, then snapshot.
+  async function flush() {
+    if (runFlushers()) await new Promise((r) => setTimeout(r, 1200));
+    return snapshot();
+  }
+
   function localNow(k) { return nativeGet.call(localStorage, k); }
   function allLocal() {
     const out = new Map();
@@ -5745,6 +5888,10 @@ https://github.com/nodeca/pako/blob/main/LICENSE
     if (snapping) { again = true; return snapping; }
     clearTimeout(timer); firstDirtyAt = 0;
     snapping = (async () => {
+      // Yield first: a snapshot with nothing to do would otherwise finish synchronously, run the
+      // finally below before `snapping` is assigned, and leave a stale promise that blocks every
+      // later snapshot.
+      await null;
       try {
         scanLocal();
         const local = {};
@@ -5798,7 +5945,8 @@ https://github.com/nodeca/pako/blob/main/LICENSE
     session = {
       key: saveKeyOf(folder), folder, title: String((info && info.title) || folder), kind: (info && info.kind) || "",
       createdAt: Date.now(), local: new Set(), idb: new Map(), lastDb: new Map(), files: {},
-      overflow: new Map(), foreign: new Set(), baseline: new Map(), lastText: "", stored: false, savedAt: 0
+      overflow: new Map(), foreign: new Set(), baseline: new Map(), lastText: "", stored: false, savedAt: 0,
+      flushers: new Set()
     };
     install(window);
     try { if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {}); } catch (_) {}
@@ -5830,7 +5978,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
     }
     session.baseline = allLocal();
     setInterval(() => { if (session && scanLocal()) dirty(); }, SCAN_MS);
-    document.addEventListener("visibilitychange", () => { if (document.visibilityState === "hidden") snapshot(); });
+    document.addEventListener("visibilitychange", () => { if (document.visibilityState === "hidden") flush(); });
     window.addEventListener("pagehide", () => snapshot());
 
     const files = Object.keys(session.files).length;
@@ -5855,6 +6003,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
   window.__quantiSaves = {
     begin,
     snapshot,
+    flush,
     attach: install,                          // for emulator frames on this origin
     folderName: saveFolderName,
     keyOf: (title, fileName) => saveKeyOf(saveFolderName(title, fileName)),
@@ -5868,7 +6017,13 @@ https://github.com/nodeca/pako/blob/main/LICENSE
     list: () => storeAll().then((all) => all.map((r) => ({ key: r.key, folder: r.folder, title: r.title, kind: r.kind, updatedAt: r.updatedAt }))),
     exportSerialized: async (key) => { const r = await storeGet(key); return r ? serialize(r) : null; },
     importSerialized,
-    get active() { return Boolean(session); }
+    get active() { return Boolean(session); },
+    get flushers() { return session ? session.flushers.size : 0; },
+    // What the guard is tracking for the running game (for troubleshooting).
+    status: () => session && {
+      folder: session.folder, localKeys: [...session.local], flushers: session.flushers.size, stored: session.stored, snapshotting: Boolean(snapping),
+      databases: [...session.idb].map(([name, stores]) => ({ name, stores: [...stores].map(([s, keys]) => ({ store: s, keys: [...keys.values()] })) }))
+    }
   };
 })();
 </script>
