@@ -23,7 +23,20 @@ For each game, `build.py`:
 | `$QV_LINK` | Link flags every recipe passes: the port shell, `-sENVIRONMENT=web`, memory growth |
 | `$QV_CMAKE` | CMake hints that point SDL2 find-modules at Emscripten's ports |
 | `$PORTS/deps/gl4es.sh` | Builds [gl4es](https://github.com/ptitSeb/gl4es) (legacy desktop OpenGL on WebGL); gives `$DEPS/gl4es/lib/libGL.a` |
+| `$PORTS/deps/physfs.sh` | Builds [PhysicsFS](https://github.com/icculus/physfs); gives `$DEPS/physfs/lib/libphysfs.a` |
+| `$PORTS/deps/glu.sh`, `freedoom.sh` | GLU (on gl4es headers) and the Freedoom WADs |
 | `$PORTS/deps/cmake_sdl_fix.sh` | Patches bundled `FindSDL2*.cmake` modules that insist on a system Threads package |
 | `emtools/emcc`, `emtools/em++` | Wrap Emscripten so ports it downloads from GitHub archives are fetched with git instead (`emtools/portfetch.py --all` prefetches them all) |
 
-Recipes link with plain `-sASYNCIFY` rather than the per-game `ASYNCIFY_ONLY` lists found in upstream notes: those lists are tied to a particular Emscripten version, and a stale one crashes the game at runtime.
+`python3 ports/catalog.py` regenerates [`../docs/CATALOG.md`](../docs/CATALOG.md) and [`../library/README.md`](../library/README.md) from `catalog-snapshot.json`, `games.json` and `results.json`; the status of each catalog entry is set in that script.
+
+## Porting notes
+
+Problems met while porting, and the fix each recipe uses:
+
+- **Blocking game loops.** Recipes link with plain `-sASYNCIFY` rather than the per-game `ASYNCIFY_ONLY` lists found in upstream notes: those lists are tied to a particular Emscripten version, and a stale one crashes the game at runtime. A loop that never waits gets an explicit `emscripten_sleep(0)` per frame (Nikwi), or its buffer swap is wrapped to yield (Freegish).
+- **`SDL_Delay` in SDL 1.2 games.** Emscripten's built-in SDL 1.2 maps `SDL_Delay` to `emscripten_sleep` under an alias that Asyncify does not see as asynchronous, so the first delay crashes with `unreachable`. Compile with `-DSDL_Delay=emscripten_sleep` (Nikwi). SDL2 is not affected.
+- **Flicker.** If a game waits (and so yields) between drawing a frame and swapping it, the browser shows the unfinished frame. Set `SDL_HINT_EMSCRIPTEN_ASYNCIFY` to `"0"` so only the swap yields (Freegish).
+- **Stack size.** Emscripten's default stack is 64 KB. Games with recursive loaders or big local buffers overflow it into the heap, which shows up as `memory access out of bounds` or a crashed tab far from the cause; give them `-sSTACK_SIZE=1MB` or more (C-Dogs SDL).
+- **gl4es** needs `initialize_gl4es()` before the first GL call in some games, and only exports the core names of ARB calls (Freegish).
+- **Diagnosing a crash:** `DEBUG=1 node tests/port_check.cjs <web.zip> <label>` prints the console and page error stacks. Link with `--profiling-funcs` to get function names in them. When the headless shell crashes silently, the full Chromium (`channel: 'chromium'` in Playwright) usually reports the actual error.

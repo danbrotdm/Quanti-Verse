@@ -61,6 +61,10 @@ Every game QuantiLoader starts runs under a **save guard**. All games share one 
 
 These fixes apply to bundles made by this version of QuantiVerter. Flash, DOS and WebRetro bundles made earlier still run, but they keep their old save behaviour until they are converted again.
 
+## Game library
+
+[`library/`](library/) holds ready-to-boot bundles of free games from the [Ultimate Catalog of Web Game Ports](https://github.com/Carter54git/Ultimate-Catalog-Of-Web-Game-Ports), built from source by [`ports/`](ports/) and checked to boot offline. [docs/CATALOG.md](docs/CATALOG.md) gives every other catalog entry a status and says what it would need: most are unofficial ports of commercial games, which run in QuantiLoader when you convert your own copy but cannot be shared.
+
 ## Repository layout
 
 ```
@@ -68,6 +72,9 @@ index.html                 the whole app (HTML + CSS + JS + embedded runtimes)
 qv-coi-sw.js               service worker that enables cross-origin isolation for multithreaded games
 tools/build_runtimes.py    re-embeds the Ruffle and js-dos runtimes into index.html
 docs/ENGINES.md            engine compatibility and requirements
+docs/CATALOG.md            status of every game in the Ultimate Catalog of Web Game Ports
+library/                   ready-to-boot bundles of free games, see library/README.md
+ports/                     recipes that build those bundles from source, see ports/README.md
 tests/                     browser test suite (tests/run_all.sh), see tests/README.md
 README.md
 ```
