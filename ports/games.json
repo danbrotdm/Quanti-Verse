@@ -560,5 +560,22 @@
   "license": "GPL-2.0 (code and data)",
   "description": "Tilt the floor to roll a ball through an obstacle course, collecting coins before time runs out. All level sets included.",
   "check_seconds": 16
+ },
+ {
+  "id": "openttd",
+  "title": "OpenTTD",
+  "repo": "https://github.com/OpenTTD/OpenTTD",
+  "developer": "The OpenTTD team (based on Transport Tycoon Deluxe by Chris Sawyer)",
+  "year": 2004,
+  "genre": "Simulation",
+  "tags": [
+   "simulation",
+   "strategy",
+   "tycoon",
+   "trains"
+  ],
+  "license": "GPL-2.0 (game, OpenGFX, OpenMSX); CC-BY-SA 3.0 (OpenSFX)",
+  "description": "Open-source transport simulation: build trains, road vehicles, ships and aircraft networks. Ships with the free OpenGFX graphics, OpenSFX sounds and OpenMSX music.",
+  "check_seconds": 25
  }
 ]

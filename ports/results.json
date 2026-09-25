@@ -509,6 +509,29 @@
   "sizeMB": 2.2,
   "status": "ok"
  },
+ "openttd": {
+  "bundle": "library/OpenTTD.bootable.zip",
+  "check": {
+   "bundleMB": 18.9,
+   "colorsOverTime": [
+    532,
+    538,
+    530,
+    543,
+    538,
+    528,
+    523,
+    532
+   ],
+   "errors": [],
+   "label": "OpenTTD",
+   "leaked": [],
+   "title": "OpenTTD 20260924-master-g3c91c93222",
+   "verterWarnings": []
+  },
+  "sizeMB": 18.9,
+  "status": "ok"
+ },
  "powermanga": {
   "bundle": "library/Powermanga.bootable.zip",
   "check": {
