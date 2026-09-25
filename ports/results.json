@@ -56,6 +56,25 @@
   "sizeMB": 1.6,
   "status": "ok"
  },
+ "blobbyvolley2": {
+  "bundle": "library/Blobby_Volley_2.bootable.zip",
+  "check": {
+   "bundleMB": 1.7,
+   "colorsOverTime": [
+    5422,
+    5422,
+    5422,
+    5422
+   ],
+   "errors": [],
+   "label": "Blobby_Volley_2",
+   "leaked": [],
+   "title": "Blobby Volley 2 Version 1.1.1 FPS: 41",
+   "verterWarnings": []
+  },
+  "sizeMB": 1.7,
+  "status": "ok"
+ },
  "bombermaaan": {
   "bundle": "library/Bombermaaan.bootable.zip",
   "check": {

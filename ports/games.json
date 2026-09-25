@@ -509,5 +509,22 @@
   "license": "GPL-3.0",
   "description": "Classic arena bomber for up to five players on one keyboard or against the computer.",
   "check_seconds": 14
+ },
+ {
+  "id": "blobbyvolley2",
+  "title": "Blobby Volley 2",
+  "repo": "https://github.com/danielknobe/blobbyvolley2",
+  "developer": "Daniel Knobe and the Blobby Volley team",
+  "year": 2006,
+  "genre": "Sports",
+  "tags": [
+   "sports",
+   "volleyball",
+   "2-player",
+   "arcade"
+  ],
+  "license": "GPL-2.0",
+  "description": "Two blobs, one ball: a head-to-head volleyball game for two players on one keyboard or against Lua bots.",
+  "check_seconds": 14
  }
 ]
