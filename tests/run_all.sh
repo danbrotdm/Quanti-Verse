@@ -22,6 +22,10 @@ node e2e.cjs engines/probe-classic.zip "$O" probe-classic "400,300,0,255,0" | gr
 echo "== engines: multithreaded (cross-origin isolation)"; check node threads.cjs engines/probe-threads.zip engines/probe-classic.zip
 echo "== engines: LÖVE (love.js) single-threaded, saves via IDBFS";  check node love.cjs engines/love-compat.zip
 echo "== engines: LÖVE (love.js) multithreaded over http";           APP=http://127.0.0.1:8766/index.html check node love.cjs engines/love-release.zip
+if ls engines/godot*.zip >/dev/null 2>&1; then   # built by engines/build_godot.sh
+  echo "== engines: Godot 4 + 3 single-threaded (file://)"; check node godot.cjs engines/godot4-nothreads.zip; check node godot.cjs engines/godot3-plain.zip
+  echo "== engines: Godot 4 + 3 multithreaded (http)"; APP=http://127.0.0.1:8766/index.html check node godot.cjs engines/godot4-threads.zip; APP=http://127.0.0.1:8766/index.html check node godot.cjs engines/godot3-threads.zip
+else echo "== engines: Godot skipped (run engines/build_godot.sh to build the test games)"; fi
 for t in web dos flash disk; do echo "== saves: $t"; check node saves.cjs $t; done
 echo "== save hardening"; check node harden.cjs
 echo "== bulk actions";   check node bulk.cjs "$O"

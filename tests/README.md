@@ -24,6 +24,7 @@ BIG=1 tests/run_all.sh      # also time a 1.5 GB bundle launch
 | `zip64.cjs` | A backup with a 4.5 GB entry is readable by our reader and by Python's `zipfile` |
 | `threads.cjs` | A multithreaded (pthreads) game is flagged by QuantiVerter, runs after QuantiLoader switches on cross-origin isolation over http, and gets a clear explanation on `file://` |
 | `love.cjs` | A LÖVE game packaged by love.js runs from its bundle, saves through `love.filesystem` (Emscripten IDBFS), and its save is restored after the browser loses it. Run with the single-threaded and the threaded build |
+| `godot.cjs` | A Godot web export (4.x or 3.x, with or without threads) runs from its bundle, saves to `user://`, and its save is restored after the browser loses it. The Godot test games are built by `engines/build_godot.sh` (not committed, several MB each) |
 | `bigload.cjs` | Seconds to running and memory for a big bundle (streamed, not loaded into RAM) |
 | `engines/` | Engine test games: Emscripten probes (classic, threaded, modularized) built from `probe.c` by `build_probes.sh`, and love.js builds of `love-src/` made by `build_love.sh` |
 | `check_syntax.py` | Every inline script in `index.html` parses |

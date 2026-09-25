@@ -2364,6 +2364,34 @@ https://github.com/nodeca/pako/blob/main/LICENSE
       }
     `);
 
+    // AudioWorklet modules are fetched by the browser itself, past the shims above, so a
+    // worklet file in the bundle (Godot's index.audio.worklet.js, ...) is handed over as code.
+    // Pages opened from disk have an opaque origin that refuses blob: worklets, so they get a
+    // data: URL. On file:// pages, service worker lookups (Godot's PWA check) answer "none"
+    // instead of throwing.
+    boot.push(`
+      if(window.AudioWorklet&&AudioWorklet.prototype.addModule){
+        const nAddModule=AudioWorklet.prototype.addModule;
+        const asUrl=(code)=>location.protocol==="file:"
+          ?"data:text/javascript;charset=utf-8,"+encodeURIComponent(code)
+          :URL.createObjectURL(new Blob([code],{type:"text/javascript"}));
+        AudioWorklet.prototype.addModule=function(url,opts){
+          const raw=typeof url==="string"?url:(url&&url.href)||String(url);
+          const p=!external(raw)?resolve(ENTRY,raw):null;
+          if(p&&FILES.has(p))return blobFor(p).then(b=>b.text()).then(code=>nAddModule.call(this,asUrl(code),opts));
+          if(location.protocol==="file:"&&/^blob:/.test(raw))return fetch(raw).then(r=>r.text()).then(code=>nAddModule.call(this,asUrl(code),opts));
+          return nAddModule.call(this,url,opts);
+        };
+      }
+      if(location.protocol==="file:"&&navigator.serviceWorker){
+        try{
+          const sw=navigator.serviceWorker;
+          sw.getRegistration=()=>Promise.resolve(undefined);
+          sw.getRegistrations=()=>Promise.resolve([]);
+        }catch(_){}
+      }
+    `);
+
     // Rewrite resources already present in the HTML body before app scripts run.
     boot.push(`
       async function rewriteElement(el,attr){
