@@ -60,7 +60,9 @@ def build(g, src):
     env = dict(os.environ)
     env["PATH"] = os.path.join(HERE, "emtools") + os.pathsep + env["PATH"]
     env["OUT"] = out
-    env["QV_LINK"] = f"--shell-file {shell} -sENVIRONMENT=web -sALLOW_MEMORY_GROWTH=1"
+    # Every port keeps its save folders in IndexedDB (persist.js); by default $HOME and SDL's pref path.
+    persist = f"-lidbfs.js --pre-js {os.path.join(HERE, 'persist-defaults.js')} --pre-js {os.path.join(HERE, 'persist.js')}"
+    env["QV_LINK"] = f"--shell-file {shell} -sENVIRONMENT=web -sALLOW_MEMORY_GROWTH=1 {persist}"
     env["JOBS"] = str(os.cpu_count() or 2)
     # Older ports guard their web code with #ifdef EMSCRIPTEN, a macro current Emscripten no longer
     # defines (only __EMSCRIPTEN__); without it they busy-wait instead of yielding to the browser.

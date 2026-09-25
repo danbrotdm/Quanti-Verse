@@ -17,13 +17,15 @@ RESULTS = json.load(open(os.path.join(HERE, "results.json")))
 
 # Catalog entry number -> ports/games.json ids built from it.
 PORTED = {
-    9: ["anarch"], 25: ["atomiks"], 26: ["azimuth"], 46: ["blobbyvolley2"], 51: ["bombermaaan"],
-    55: ["brogue"], 62: ["cdogs"], 64: ["candycrisis"], 88: ["cromagrally"], 93: ["cuyo"],
+    7: ["abuse"], 9: ["anarch"], 11: ["angband"], 23: ["astromenace"], 25: ["atomiks"], 26: ["azimuth"],
+    46: ["blobbyvolley2"], 51: ["bombermaaan"], 54: ["breakhack"], 55: ["brogue"], 62: ["cdogs"],
+    64: ["candycrisis"], 78: ["chromiumbsu"], 88: ["cromagrally"], 93: ["cuyo"],
     110: ["freedoom1", "freedoom2"], 112: ["freedoom1", "freedoom2"], 127: ["dungeonrush"],
     130: ["emptyclip"], 170: ["freegemas"], 171: ["freegish"], 173: ["freesiege"], 199: ["haxima"],
-    203: ["hannah"], 229: ["jumpnbump"], 245: ["lbreakouthd"], 248: ["liri"], 281: ["nikwi"],
-    286: ["numptyphysics"], 315: ["powermanga"], 351: ["sopwith"], 352: ["sdlball"],
-    393: ["starfighter"], 444: ["vectoroids"], 445: ["violetland"], 449: ["watercloset"], 465: ["xgalaga"],
+    203: ["hannah"], 229: ["jumpnbump"], 245: ["lbreakouthd"], 248: ["liri"], 279: ["neverball"], 281: ["nikwi"],
+    286: ["numptyphysics"], 295: ["openttd"], 315: ["powermanga"], 351: ["sopwith"], 352: ["sdlball"],
+    357: ["simutrans"], 393: ["starfighter"], 444: ["vectoroids"], 445: ["violetland"], 449: ["watercloset"],
+    465: ["xgalaga"],
 }
 PORTED_NOTES = {
     110: "id's Doom needs its own IWAD (the shareware doom1.wad may be shared); the library has the engine with the free Freedoom data.",
@@ -32,21 +34,13 @@ PORTED_NOTES = {
 
 # Free and open games (code and data) that can be built the same way but are not in the library yet.
 CANDIDATE = {
-    7: "Code and most data are public domain; a few sound effects have unclear terms and would need to be left out. SDL2, CMake.",
-    11: "GPL-2.0 / Angband licence, data included. SDL2 front end; turn-based, so a plain Emscripten build with ASYNCIFY.",
-    23: "GPL-3.0 code, free data. SDL2 + OpenGL + OpenAL + Vorbis + FreeType; needs gl4es and about 150 MB of data (size limit of a single file on GitHub).",
-    34: "GPL-3.0. SDL 1.2 + SDL_ttf; small.",
-    47: "GPL-2.0, data included. SDL 1.2 + SDL_image/SDL_mixer + OpenGL (gl4es).",
-    54: "GPL-3.0 code, CC-BY-SA data. Build attempted: its SDL3-era submodules could not be fetched recursively. Needs its CMake build pointed at Emscripten's SDL2 ports.",
-    78: "Clarified Artistic licence. Build attempted: needs FTGL, freealut and glpng built for Emscripten (not yet in ports/deps).",
-    165: "Flare engine GPL-3.0 plus the flare-game data (CC-BY-SA). SDL2 + SDL_image/mixer/ttf; data is fetched from a second repository.",
-    279: "GPL-2.0, data included. SDL2 + OpenGL ES + PhysFS + libpng/jpeg/vorbis; PhysFS is in ports/deps now.",
-    295: "GPL-2.0 plus the free OpenGFX/OpenSFX/OpenMSX sets (GitHub releases). Has upstream Emscripten support; needs zlib, lzma, libpng, freetype and a large link.",
+    34: "GPL-3.0. SDL 1.2 + SDL_ttf, small. Its sources (baller.tuxfamily.org, SourceForge) could not be reached from the build environment.",
+    47: "GPL-2.0, data included. SDL 1.2 + SDL_image/SDL_mixer + OpenGL (gl4es). The catalog's repository (midzer/bloboats) no longer exists; needs another copy of the source.",
+    165: "Flare engine GPL-3.0 plus the flare-game data (CC-BY-SA), which is about 640 MB (385 MB of images): far over GitHub's 100 MB file limit. Needs the images downscaled (the half-scale minicore mod still leaves 234 MB) or the bundle hosted outside git (Git LFS or a release asset).",
     296: "GPL-2.0 engine with the Tyrian 2.1 data its authors released as freeware (camanis.net/tyrian/tyrian21.zip, which the build environment could not reach). SDL2, small.",
-    343: "GPL code; check the art licence in the repository before publishing. SDL 1.2/2 + SDL_mixer.",
-    357: "Artistic licence 1.0 code with the free pak64 data. SDL2 + zlib + bzip2; has an Emscripten target upstream.",
-    406: "GPL-3.0, data included. SDL2 + OpenGL + OpenAL + PhysFS + Boost + libpng/vorbis; large but mostly covered by Emscripten ports.",
-    423: "BSD-2-Clause, data included. Written in D: needs LDC's WebAssembly target plus an SDL/OpenGL binding, which the ports pipeline does not have.",
+    343: "GPL-2.0 code; art and sound CC-BY-SA 4.0; the music/old folder has other terms and must be left out. SDL 1.2 only: it uses TTF_OpenFontRW, TTF_SetFontOutline and SDL_SoftStretch, which Emscripten's built-in SDL 1.2 lacks. Needs sdl12-compat with SDL 1.2 builds of SDL_ttf, SDL_image, SDL_mixer and SDL_gfx on top of Emscripten's SDL2 (the game compiles; ports/deps/sdl_gfx.sh builds SDL_gfx). Each of its two games is about 50 MB.",
+    406: "GPL-3.0, data included, with upstream Emscripten support (SDL3). The data is about 330 MB (144 MB music, 126 MB images): over GitHub's 100 MB file limit unless the music is re-encoded and the bundle hosted outside git.",
+    423: "BSD-2-Clause, data included. Written in D: needs LDC's WebAssembly target plus a D runtime and SDL/OpenGL bindings for the web, which the ports pipeline does not have.",
 }
 
 # Free engines or source ports that need the original commercial game files.

@@ -6,8 +6,8 @@ Most of the catalog is unofficial web ports of commercial games. Their engines w
 
 | Status | Entries |
 | --- | --- |
-| [In the library](#in-the-library) | 32 |
-| [Free games not ported yet](#free-games-not-ported-yet) | 15 |
+| [In the library](#in-the-library) | 40 |
+| [Free games not ported yet](#free-games-not-ported-yet) | 7 |
 | [Needs the original game data](#needs-the-original-game-data) | 64 |
 | [Free code, protected characters](#free-code-protected-characters) | 12 |
 | [Licence unclear](#licence-unclear) | 14 |
@@ -21,14 +21,19 @@ Built from source and verified (boots offline in QuantiLoader, draws, no errors)
 
 | # | Catalog entry | Library bundle | Licence |
 | --- | --- | --- | --- |
+| 7 | Abuse ([source](https://github.com/midzer/abuse)) | [Abuse](../library/Abuse.bootable.zip) | Public domain (code and data); GPL-2.0+ (SDL port); WTFPL (tools). Sound and music not included. |
 | 9 | Anarch ([source](https://gitlab.com/drummyfish/anarch)) | [Anarch](../library/Anarch.bootable.zip) | CC0 1.0 (public domain, code and data) |
+| 11 | Angband ([source](https://github.com/angband/angband)) | [Angband](../library/Angband.bootable.zip) | GPL-2.0 / Angband licence (code and data) |
+| 23 | AstroMenace ([source](https://github.com/midzer/astromenace)) | [AstroMenace](../library/AstroMenace.bootable.zip) | GPL-3.0 (code); CC-BY-SA 4.0 and other free licences (data, see licenses/) |
 | 25 | Atomiks ([source](https://github.com/midzer/atomiks)) | [Atomiks](../library/Atomiks.bootable.zip) | GPL-3.0 (code and data) |
 | 26 | Azimuth ([source](https://github.com/midzer/azimuth)) | [Azimuth](../library/Azimuth.bootable.zip) | GPL-3.0 (code and data) |
 | 46 | Blobby Volley 2 ([source](https://github.com/danielknobe/blobbyvolley2)) | [Blobby Volley 2](../library/Blobby_Volley_2.bootable.zip) | GPL-2.0 |
 | 51 | Bombermaaan ([source](https://github.com/midzer/Bombermaaan)) | [Bombermaaan](../library/Bombermaaan.bootable.zip) | GPL-3.0 |
+| 54 | BreakHack ([source](https://github.com/midzer/breakhack)) | [BreakHack](../library/BreakHack.bootable.zip) | GPL-3.0 (code), free art packs |
 | 55 | Brogue ([source](https://github.com/midzer/BrogueCE)) | [Brogue Community Edition](../library/Brogue_Community_Edition.bootable.zip) | AGPL-3.0 (code and data) |
 | 62 | C-Dogs SDL ([source](https://github.com/midzer/cdogs-sdl)) | [C-Dogs SDL](../library/C-Dogs_SDL.bootable.zip) | GPL-2.0 / BSD-2-Clause (code); CC0, CC-BY, CC-BY-SA (data) |
 | 64 | Candy Crisis ([source](https://github.com/midzer/CandyCrisis)) | [Candy Crisis](../library/Candy_Crisis.bootable.zip) | GPL-2.0 (code and data) |
+| 78 | Chromium B.S.U. ([source](https://github.com/midzer/chromium-bsu)) | [Chromium B.S.U.](../library/Chromium_B.S.U..bootable.zip) | Clarified Artistic License (code and data); DejaVu Sans font (Bitstream Vera licence) |
 | 88 | Cro-Mag Rally ([source](https://github.com/midzer/CroMagRally)) | [Cro-Mag Rally](../library/Cro-Mag_Rally.bootable.zip) | CC BY-NC-SA 4.0 (non-commercial) |
 | 93 | Cuyo ([source](https://github.com/midzer/cuyo)) | [Cuyo](../library/Cuyo.bootable.zip) | GPL-2.0 (code and data) |
 | 110 | Doom ([source](https://github.com/midzer/chocolate-doom)) | [Freedoom: Phase 1](../library/Freedoom_Phase_1.bootable.zip), [Freedoom: Phase 2](../library/Freedoom_Phase_2.bootable.zip) id's Doom needs its own IWAD (the shareware doom1.wad may be shared); the library has the engine with the free Freedoom data. | BSD-3-Clause (Freedoom data), GPL-2.0 (Chocolate Doom) |
@@ -43,11 +48,14 @@ Built from source and verified (boots offline in QuantiLoader, draws, no errors)
 | 229 | Jump 'n Bump ([source](https://github.com/midzer/jumpnbump)) | [Jump 'n Bump](../library/Jump_n_Bump.bootable.zip) | GPL-2.0 (code and data) |
 | 245 | LBreakoutHD ([source](https://github.com/midzer/lbreakouthd)) | [LBreakoutHD](../library/LBreakoutHD.bootable.zip) | GPL-3.0 (code and data) |
 | 248 | Li-Ri ([source](https://github.com/midzer/Li-Ri)) | [Li-Ri](../library/Li-Ri.bootable.zip) | GPL-2.0 (code), free music |
+| 279 | Neverball ([source](https://github.com/Neverball/neverball)) | [Neverball](../library/Neverball.bootable.zip) | GPL-2.0 (code and data) |
 | 281 | Nikwi ([source](https://github.com/midzer/nikwi)) | [Nikwi Deluxe](../library/Nikwi_Deluxe.bootable.zip) | zlib licence (code); WTFPL (data) |
 | 286 | Numpty Physics ([source](https://github.com/midzer/numptyphysics)) | [Numpty Physics](../library/Numpty_Physics.bootable.zip) | GPL-3.0 (code and data) |
+| 295 | OpenTTD ([source](https://github.com/OpenTTD/OpenTTD)) | [OpenTTD](../library/OpenTTD.bootable.zip) | GPL-2.0 (game, OpenGFX, OpenMSX); CC-BY-SA 3.0 (OpenSFX) |
 | 315 | Powermanga ([source](https://github.com/midzer/Powermanga)) | [Powermanga](../library/Powermanga.bootable.zip) | GPL-3.0 (code and data) |
 | 351 | SDL Sopwith ([source](https://github.com/fragglet/sdl-sopwith)) | [SDL Sopwith](../library/SDL_Sopwith.bootable.zip) | GPL-2.0 (code and data) |
 | 352 | SDL-Ball ([source](https://github.com/midzer/sdl-ball)) | [SDL-Ball](../library/SDL-Ball.bootable.zip) | GPL-3.0 (code and data) |
+| 357 | Simutrans ([source](https://github.com/midzer/simutrans)) | [Simutrans](../library/Simutrans.bootable.zip) | Artistic Licence 1.0 (game and pak64) |
 | 393 | Starfighter ([source](https://github.com/midzer/starfighter)) | [Project: Starfighter](../library/Project_Starfighter.bootable.zip) | GPL-3.0 (code), free art and music (see LICENSES) |
 | 444 | Vectoroids ([source](https://github.com/midzer/vectoroids)) | [Vectoroids](../library/Vectoroids.bootable.zip) | GPL-2.0 (code and data) |
 | 445 | Violetland ([source](https://github.com/midzer/violetland)) | [Violetland](../library/Violetland.bootable.zip) | GPL-3.0 (code), CC-BY-SA 3.0 (assets) |
@@ -60,21 +68,13 @@ Open code and data, so these can join the library. The note says what the build 
 
 | # | Game | What it needs |
 | --- | --- | --- |
-| 7 | Abuse ([source](https://github.com/midzer/abuse)) | Code and most data are public domain; a few sound effects have unclear terms and would need to be left out. SDL2, CMake. |
-| 11 | Angband ([source](https://github.com/angband/angband)) | GPL-2.0 / Angband licence, data included. SDL2 front end; turn-based, so a plain Emscripten build with ASYNCIFY. |
-| 23 | AstroMenace ([source](https://github.com/midzer/astromenace)) | GPL-3.0 code, free data. SDL2 + OpenGL + OpenAL + Vorbis + FreeType; needs gl4es and about 150 MB of data (size limit of a single file on GitHub). |
-| 34 | Ballerburg SDL ([site](https://baller.tuxfamily.org/)) | GPL-3.0. SDL 1.2 + SDL_ttf; small. |
-| 47 | Bloboats ([source](https://github.com/midzer/bloboats)) | GPL-2.0, data included. SDL 1.2 + SDL_image/SDL_mixer + OpenGL (gl4es). |
-| 54 | BreakHack ([source](https://github.com/midzer/breakhack)) | GPL-3.0 code, CC-BY-SA data. Build attempted: its SDL3-era submodules could not be fetched recursively. Needs its CMake build pointed at Emscripten's SDL2 ports. |
-| 78 | Chromium B.S.U. ([source](https://github.com/midzer/chromium-bsu)) | Clarified Artistic licence. Build attempted: needs FTGL, freealut and glpng built for Emscripten (not yet in ports/deps). |
-| 165 | Flare ([source](https://github.com/midzer/flare-engine)) | Flare engine GPL-3.0 plus the flare-game data (CC-BY-SA). SDL2 + SDL_image/mixer/ttf; data is fetched from a second repository. |
-| 279 | Neverball ([source](https://github.com/Neverball/neverball)) | GPL-2.0, data included. SDL2 + OpenGL ES + PhysFS + libpng/jpeg/vorbis; PhysFS is in ports/deps now. |
-| 295 | OpenTTD ([source](https://github.com/OpenTTD/OpenTTD)) | GPL-2.0 plus the free OpenGFX/OpenSFX/OpenMSX sets (GitHub releases). Has upstream Emscripten support; needs zlib, lzma, libpng, freetype and a large link. |
+| 34 | Ballerburg SDL ([site](https://baller.tuxfamily.org/)) | GPL-3.0. SDL 1.2 + SDL_ttf, small. Its sources (baller.tuxfamily.org, SourceForge) could not be reached from the build environment. |
+| 47 | Bloboats ([source](https://github.com/midzer/bloboats)) | GPL-2.0, data included. SDL 1.2 + SDL_image/SDL_mixer + OpenGL (gl4es). The catalog's repository (midzer/bloboats) no longer exists; needs another copy of the source. |
+| 165 | Flare ([source](https://github.com/midzer/flare-engine)) | Flare engine GPL-3.0 plus the flare-game data (CC-BY-SA), which is about 640 MB (385 MB of images): far over GitHub's 100 MB file limit. Needs the images downscaled (the half-scale minicore mod still leaves 234 MB) or the bundle hosted outside git (Git LFS or a release asset). |
 | 296 | OpenTyrian ([source](https://github.com/midzer/opentyrian)) | GPL-2.0 engine with the Tyrian 2.1 data its authors released as freeware (camanis.net/tyrian/tyrian21.zip, which the build environment could not reach). SDL2, small. |
-| 343 | Rockbot ([source](https://github.com/midzer/rockbot)) | GPL code; check the art licence in the repository before publishing. SDL 1.2/2 + SDL_mixer. |
-| 357 | Simutrans ([source](https://github.com/midzer/simutrans)) | Artistic licence 1.0 code with the free pak64 data. SDL2 + zlib + bzip2; has an Emscripten target upstream. |
-| 406 | SuperTux ([source](https://github.com/SuperTux/supertux)) | GPL-3.0, data included. SDL2 + OpenGL + OpenAL + PhysFS + Boost + libpng/vorbis; large but mostly covered by Emscripten ports. |
-| 423 | Torus Trooper ([source](https://github.com/speps/tt)) | BSD-2-Clause, data included. Written in D: needs LDC's WebAssembly target plus an SDL/OpenGL binding, which the ports pipeline does not have. |
+| 343 | Rockbot ([source](https://github.com/midzer/rockbot)) | GPL-2.0 code; art and sound CC-BY-SA 4.0; the music/old folder has other terms and must be left out. SDL 1.2 only: it uses TTF_OpenFontRW, TTF_SetFontOutline and SDL_SoftStretch, which Emscripten's built-in SDL 1.2 lacks. Needs sdl12-compat with SDL 1.2 builds of SDL_ttf, SDL_image, SDL_mixer and SDL_gfx on top of Emscripten's SDL2 (the game compiles; ports/deps/sdl_gfx.sh builds SDL_gfx). Each of its two games is about 50 MB. |
+| 406 | SuperTux ([source](https://github.com/SuperTux/supertux)) | GPL-3.0, data included, with upstream Emscripten support (SDL3). The data is about 330 MB (144 MB music, 126 MB images): over GitHub's 100 MB file limit unless the music is re-encoded and the bundle hosted outside git. |
+| 423 | Torus Trooper ([source](https://github.com/speps/tt)) | BSD-2-Clause, data included. Written in D: needs LDC's WebAssembly target plus a D runtime and SDL/OpenGL bindings for the web, which the ports pipeline does not have. |
 
 ## Needs the original game data
 

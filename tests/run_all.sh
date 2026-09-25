@@ -32,6 +32,10 @@ for t in web dos flash disk; do echo "== saves: $t"; check node saves.cjs $t; do
 echo "== save hardening"; check node harden.cjs
 echo "== bulk actions";   check node bulk.cjs "$O"
 echo "== backup/restore"; check node backup.cjs
+echo "== ported games keep their saves (library/, ports/persist.js)"
+check node port_saves.cjs ../library/Angband.bootable.zip /lib/save/qvtest            # recipe's own folders
+check node port_saves.cjs ../library/Chromium_B.S.U..bootable.zip /home/web_user/qvtest # default: $HOME
+check node port_saves.cjs ../library/Dungeon_Rush.bootable.zip /home/web_user/qvtest   # save file moved into $HOME
 echo "== startup";        node smoke.cjs "$O" | tail -1
 if [ "${BIG:-0}" = 1 ]; then
   echo "== 1.5 GB bundle launch (streamed)"

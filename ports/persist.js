@@ -5,8 +5,12 @@
  * with -lidbfs.js. Each folder is backed by IDBFS: restored before main() runs, and written
  * back every few seconds and whenever the tab is hidden or closed. QuantiLoader's save guard
  * then snapshots those IndexedDB records like any other game save.
+ *
+ * build.py links this into every port through $QV_LINK with the default folders ($HOME and
+ * SDL's pref path); a recipe that sets Module.qvPersist itself replaces that list. The file may
+ * be included twice (the default plus a recipe's own --pre-js), so it only installs once.
  */
-Module.preRun = [].concat(Module.preRun || [], function () {
+if (!Module.qvPersistInstalled) Module.qvPersistInstalled = true, Module.preRun = [].concat(Module.preRun || [], function () {
   var dirs = Module.qvPersist || [];
   if (!dirs.length) return;
   dirs.forEach(function (d) { FS.mkdirTree(d); FS.mount(IDBFS, {}, d); });

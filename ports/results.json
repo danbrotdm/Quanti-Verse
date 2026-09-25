@@ -84,7 +84,7 @@
    "bundleMB": 1.1,
    "colorsOverTime": [
     26,
-    26,
+    270,
     270,
     270
    ],
@@ -102,9 +102,9 @@
   "check": {
    "bundleMB": 1.6,
    "colorsOverTime": [
-    81,
-    575,
-    671,
+    89,
+    574,
+    670,
     563
    ],
    "errors": [],
@@ -129,7 +129,7 @@
    "errors": [],
    "label": "Blobby_Volley_2",
    "leaked": [],
-   "title": "Blobby Volley 2 Version 1.1.1 FPS: 41",
+   "title": "Blobby Volley 2 Version 1.1.1 FPS: 39",
    "verterWarnings": []
   },
   "sizeMB": 1.7,
@@ -140,10 +140,10 @@
   "check": {
    "bundleMB": 6.4,
    "colorsOverTime": [
-    2492,
-    2906,
-    297,
-    297
+    2432,
+    2866,
+    2461,
+    2618
    ],
    "errors": [],
    "label": "Bombermaaan",
@@ -178,10 +178,10 @@
   "check": {
    "bundleMB": 1.2,
    "colorsOverTime": [
-    2481,
-    2499,
-    2488,
-    2480
+    2483,
+    2510,
+    2493,
+    2473
    ],
    "errors": [],
    "label": "Brogue_Community_Edition",
@@ -198,9 +198,9 @@
    "bundleMB": 5.7,
    "colorsOverTime": [
     10448,
-    5326,
-    10999,
-    11024
+    5331,
+    10967,
+    11055
    ],
    "errors": [],
    "label": "Candy_Crisis",
@@ -217,11 +217,11 @@
    "bundleMB": 33.1,
    "colorsOverTime": [
     18,
-    211,
-    212,
-    209,
-    198,
-    213
+    146,
+    150,
+    149,
+    153,
+    149
    ],
    "errors": [],
    "label": "C-Dogs_SDL",
