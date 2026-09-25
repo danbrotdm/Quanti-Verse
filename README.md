@@ -10,12 +10,14 @@ A browser game bootloader suite that lives in a single, self-contained HTML file
 
 Build tag: `NEXUS-4`
 
+**[▶ Open Quantiverse](https://danbrotdm.github.io/Quanti-Verse/)** (GitHub Pages) · [Game library](library/README.md) · [Download `index.html`](https://github.com/danbrotdm/Quanti-Verse/raw/HEAD/index.html) to run it offline from disk
+
 ## Running it
 
 Flash and DOS games are fully offline too: Ruffle and js-dos are built into the page, and QuantiVerter packs the emulator into each Flash or DOS bundle it makes.
 
 - **Locally:** open `index.html` in a Chromium-based browser or in Firefox. Folder features (Scan Folder, Set Library Folder) use the File System Access API, so they need Chromium.
-- **Hosted:** the file is named `index.html` so GitHub Pages can serve it without any setup. To publish it, go to *Settings → Pages* and deploy from the default branch root. Keep `qv-coi-sw.js` next to `index.html`.
+- **Hosted:** [`.github/workflows/pages.yml`](.github/workflows/pages.yml) publishes the app, `qv-coi-sw.js` and the game library to GitHub Pages on every push to the default branch, which is what the *Open Quantiverse* link above opens. It needs a one-time switch: *Settings → Pages → Build and deployment → Source: GitHub Actions*. On a private repository GitHub Pages requires a paid plan (Pro, Team or Enterprise); on a public one it is free. The games in the library are then at `https://danbrotdm.github.io/Quanti-Verse/library/<name>.bootable.zip`.
 - **Multithreaded games** (Emscripten pthreads, Godot 4, threaded LÖVE or .NET builds) need `SharedArrayBuffer`, and browsers only allow that on a cross-origin isolated page. A page opened from disk can never be isolated, so these games only run when Quantiverse is served over http(s): GitHub Pages, or `python3 -m http.server` in this folder. There, QuantiLoader turns isolation on through `qv-coi-sw.js` by itself (it reloads once and resumes the game). QuantiVerter marks such games in their manifest (`"requires": ["crossOriginIsolated"]`).
 - **Big games:** QuantiLoader reads bundles lazily, loading only the zip's index at start and each file when the game asks for it. A multi-gigabyte game starts at once and is never copied into memory as a whole.
 

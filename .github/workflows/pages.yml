@@ -1,0 +1,43 @@
+# Publishes Quantiverse to GitHub Pages, so it opens straight from the repository at
+# https://<owner>.github.io/<repo>/ (link in README.md). One-time setup: Settings → Pages →
+# Build and deployment → Source: "GitHub Actions". Pages on a private repository needs a
+# paid GitHub plan; on a public one it is free.
+name: Publish to GitHub Pages
+
+on:
+  push:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  publish:
+    # Only the default branch is published.
+    if: github.ref_name == github.event.repository.default_branch
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Assemble the site
+        # The app itself, its cross-origin isolation worker (threaded games), the ready-to-boot
+        # game library and the docs. Tests and port recipes are not needed to play.
+        run: |
+          mkdir _site
+          cp index.html qv-coi-sw.js _site/
+          cp -r library docs _site/
+          touch _site/.nojekyll
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+      - id: deploy
+        uses: actions/deploy-pages@v4
