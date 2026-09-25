@@ -613,5 +613,23 @@
   "license": "GPL-3.0 (code); CC-BY-SA 4.0 and other free licences (data, see licenses/)",
   "description": "Hardcore 3D space scroll-shooter with spaceship upgrades.",
   "check_seconds": 20
+ },
+ {
+  "id": "abuse",
+  "title": "Abuse",
+  "repo": "https://github.com/midzer/abuse",
+  "ref": "emscripten",
+  "developer": "Crack dot Com (1996); SDL port by Anthony Kruize, Sam Hocevar and others",
+  "year": 1996,
+  "genre": "Run and gun",
+  "tags": [
+   "action",
+   "platformer",
+   "shooter",
+   "sci-fi"
+  ],
+  "license": "Public domain (code and data); GPL-2.0+ (SDL port); WTFPL (tools). Sound and music not included.",
+  "description": "Side-scrolling run-and-gun: fight your way out of an underground prison overrun by mutants. This build has no sound (the original sound files are not freely licensed).",
+  "check_seconds": 16
  }
 ]

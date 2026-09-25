@@ -1,4 +1,24 @@
 {
+ "abuse": {
+  "bundle": "library/Abuse.bootable.zip",
+  "check": {
+   "bundleMB": 3.4,
+   "colorsOverTime": [
+    37,
+    37,
+    37,
+    37,
+    37
+   ],
+   "errors": [],
+   "label": "Abuse",
+   "leaked": [],
+   "title": "Abuse",
+   "verterWarnings": []
+  },
+  "sizeMB": 3.5,
+  "status": "ok"
+ },
  "anarch": {
   "bundle": "library/Anarch.bootable.zip",
   "check": {
