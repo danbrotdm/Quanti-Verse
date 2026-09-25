@@ -475,5 +475,21 @@
   "license": "GPL-2.0 / BSD-2-Clause (code); CC0, CC-BY, CC-BY-SA (data)",
   "description": "Classic overhead run-and-gun: campaigns, co-op and deathmatch, remade from the 1997 DOS game.",
   "check_seconds": 20
+ },
+ {
+  "id": "freegish",
+  "title": "Freegish",
+  "repo": "https://github.com/midzer/freegish",
+  "developer": "Cryptic Sea (original Gish); Freegish contributors",
+  "year": 2004,
+  "genre": "Platformer",
+  "tags": [
+   "platformer",
+   "physics",
+   "2d"
+  ],
+  "license": "GPL-2.0 (code); CC-BY-SA 3.0 (data, per directory notes)",
+  "description": "Physics platformer starring a ball of tar that can stick, slide and harden, using the free replacement data of the open-sourced Gish.",
+  "check_seconds": 16
  }
 ]

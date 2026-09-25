@@ -260,6 +260,26 @@
   "sizeMB": 4.3,
   "status": "ok"
  },
+ "freegish": {
+  "bundle": "library/Freegish.bootable.zip",
+  "check": {
+   "bundleMB": 12.1,
+   "colorsOverTime": [
+    42,
+    195,
+    195,
+    195,
+    195
+   ],
+   "errors": [],
+   "label": "Freegish",
+   "leaked": [],
+   "title": "Gish",
+   "verterWarnings": []
+  },
+  "sizeMB": 12.1,
+  "status": "ok"
+ },
  "freesiege": {
   "bundle": "library/FreeSiege.bootable.zip",
   "check": {
