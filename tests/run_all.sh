@@ -17,6 +17,8 @@ sleep 1
 e2e() { node e2e.cjs "$W/fixtures/$1" "$O" "$2" "$3" | tee "$O/$2.log" | grep -E 'PIXELS|leave'; grep -q 'PIXELS PASS' "$O/$2.log" && grep -q 'leave the machine: none' "$O/$2.log" || fail=1; }
 echo "== convert + boot offline";  e2e flashgame.zip flash "80,250,0,255,0;600,450,255,0,255;400,250,0,0,80"
 e2e dosgame.zip dos "400,300,170,0,0"; e2e webgame.zip web "400,300,255,136,0"
+echo "== engines: Unity-style Brotli/gzip build, ES modules with computed imports"
+e2e unitylike.zip unitylike "400,300,0,255,0"; e2e modules.zip modules "400,300,0,255,0"
 echo "== engines: Emscripten classic + modularized"
 node e2e.cjs engines/probe-classic.zip "$O" probe-classic "400,300,0,255,0" | grep PIXELS; grep -q 'PIXELS PASS' <(node e2e.cjs engines/probe-modular.zip "$O" probe-modular "400,300,0,255,0") || fail=1
 echo "== engines: multithreaded (cross-origin isolation)"; check node threads.cjs engines/probe-threads.zip engines/probe-classic.zip

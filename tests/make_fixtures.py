@@ -63,6 +63,41 @@ with zipfile.ZipFile(f"{OUT}/webgame.zip", "w") as z:
     z.writestr("webgame/js/app.js", "fetch('data/color.txt').then(r=>r.text()).then(c=>{document.getElementById('b').style.background=c.trim()})")
     z.writestr("webgame/data/color.txt", "#ff8800")
 
+# Unity-style build compressed for a web server's Content-Encoding (.br / .gz / .unityweb): the
+# page expects the bytes already decoded, as a correctly configured server would deliver them.
+import gzip, zlib
+try:
+    import brotli
+    br = brotli.compress
+except ImportError:
+    br = None
+if br:
+    fw = b"window.FW_OK = 'framework-ok';"
+    data = bytes(range(256)) * 64
+    unity_js = r"""
+(async () => {
+  const txt = await (await fetch('Build/game.framework.js.br')).text();
+  const data = new Uint8Array(await (await fetch('Build/game.data.gz')).arrayBuffer());
+  const wasm = await (await fetch('Build/game.wasm.unityweb')).text();
+  let ok = txt.includes('framework-ok') && data.length === 16384 && data[255] === 255 && wasm === 'wasm-ok';
+  document.getElementById('b').style.background = ok ? '#00ff00' : '#ff0000';
+  document.title = ok ? 'unity ok' : 'unity bad';
+})();
+"""
+    with zipfile.ZipFile(f"{OUT}/unitylike.zip", "w") as z:
+        z.writestr("unitylike/index.html", "<!doctype html><html><head><title>Unity-like</title></head><body style='margin:0'><div id=b style='position:fixed;inset:0;background:#000'></div><script src=loader.js></script></body></html>")
+        z.writestr("unitylike/loader.js", unity_js)
+        z.writestr("unitylike/Build/game.framework.js.br", br(fw))
+        z.writestr("unitylike/Build/game.data.gz", gzip.compress(data))
+        z.writestr("unitylike/Build/game.wasm.unityweb", br(b"wasm-ok"))
+
+# ES modules loaded through a computed URL (import(new URL(name, import.meta.url))), like .NET's dotnet.js.
+with zipfile.ZipFile(f"{OUT}/modules.zip", "w") as z:
+    z.writestr("modules/index.html", "<!doctype html><html><head><title>Modules</title></head><body style='margin:0'><div id=b style='position:fixed;inset:0;background:#f00'></div><script type=module src=main.mjs></script></body></html>")
+    z.writestr("modules/main.mjs", "const name = ['dyn', 'js'].join('.');\nconst m = await import(new URL('./lib/' + name, import.meta.url));\ndocument.getElementById('b').style.background = m.color;\ndocument.title = 'modules ' + m.color;\n")
+    z.writestr("modules/lib/dyn.js", "import { green } from './util.js';\nexport const color = green;\n")
+    z.writestr("modules/lib/util.js", "export const green = '#00ff00';\n")
+
 # ---- save fixtures -------------------------------------------------------------------
 # Web: counts launches in localStorage (setItem + a property-style write) and IndexedDB, and
 # paints the launch count: #run = 1 red, 2 green, 3+ blue; #idb = green if its IDB record was
