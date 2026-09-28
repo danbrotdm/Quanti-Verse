@@ -1,0 +1,57 @@
+# Builds a downloadable release: the app, and the game library, as GitHub release assets.
+# Run it from Actions → "Make a release" → Run workflow (give a version such as v1.0.0),
+# or push a tag named v*. Asset names are fixed, so these links always get the newest release:
+#   https://github.com/<owner>/<repo>/releases/latest/download/Quantiverse.zip
+#   https://github.com/<owner>/<repo>/releases/latest/download/Quantiverse-games.zip
+#   https://github.com/<owner>/<repo>/releases/latest/download/index.html
+name: Make a release
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Version tag to create, e.g. v1.0.0
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    env:
+      VERSION: ${{ github.event.inputs.version || github.ref_name }}
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Package
+        run: |
+          mkdir -p dist/Quantiverse/docs dist/games
+          cp index.html qv-coi-sw.js dist/Quantiverse/
+          cp docs/ENGINES.md docs/CATALOG.md dist/Quantiverse/docs/
+          cp README.md dist/Quantiverse/README.md
+          cat > dist/Quantiverse/START-HERE.txt <<TXT
+          Quantiverse $VERSION
+
+          1. Open index.html in Chrome, Edge or Firefox (double-click it). Everything runs offline.
+          2. To play a game, download Quantiverse-games.zip from the same release, unzip it,
+             and open any .bootable.zip file in QuantiLoader (or import them all in QuantiSorter).
+          3. Keep qv-coi-sw.js next to index.html. Multithreaded games need Quantiverse served
+             over http(s), e.g. run "python3 -m http.server" in this folder and open
+             http://localhost:8000/ ; single-threaded games also work straight from disk.
+
+          Online version: https://${GITHUB_REPOSITORY_OWNER}.github.io/${GITHUB_REPOSITORY#*/}/
+          TXT
+          sed -i 's/^          //' dist/Quantiverse/START-HERE.txt
+          (cd dist && zip -qr Quantiverse.zip Quantiverse)
+          cp library/*.bootable.zip library/README.md dist/games/
+          (cd dist && zip -qr0 Quantiverse-games.zip games)   # bundles are zips already: store them
+          cp index.html dist/index.html
+          ls -la dist
+      - name: Publish the release
+        run: |
+          gh release create "$VERSION" --target "$GITHUB_SHA" --title "Quantiverse $VERSION" --latest \
+            --notes "Download **Quantiverse.zip** (the app) and open \`index.html\`. **Quantiverse-games.zip** has the $(ls library/*.bootable.zip | wc -l) ready-to-boot free games from the library; see START-HERE.txt inside the app zip." \
+            dist/Quantiverse.zip dist/Quantiverse-games.zip dist/index.html

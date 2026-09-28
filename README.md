@@ -10,7 +10,9 @@ A browser game bootloader suite that lives in a single, self-contained HTML file
 
 Build tag: `NEXUS-4`
 
-**[▶ Open Quantiverse](https://danbrotdm.github.io/Quanti-Verse/)** (GitHub Pages) · [Game library](library/README.md) · [Download `index.html`](https://github.com/danbrotdm/Quanti-Verse/raw/HEAD/index.html) to run it offline from disk
+**[▶ Open Quantiverse](https://danbrotdm.github.io/Quanti-Verse/)** (GitHub Pages) · [Game library](library/README.md)
+
+**Download:** [Quantiverse.zip](https://github.com/danbrotdm/Quanti-Verse/releases/latest/download/Quantiverse.zip) (the app: unzip and open `index.html`, works offline) · [Quantiverse-games.zip](https://github.com/danbrotdm/Quanti-Verse/releases/latest/download/Quantiverse-games.zip) (the 40 free games) · [all releases](https://github.com/danbrotdm/Quanti-Verse/releases)
 
 ## Running it
 
